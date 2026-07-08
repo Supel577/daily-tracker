@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>ডেইলি ট্র্যাকার</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          emerald: { glow: '#10ff9c' }
+        },
+        fontFamily: { sans: ['Hind Siliguri', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  html, body { font-family: 'Hind Siliguri', sans-serif; overscroll-behavior-y: none; }
+  body {
+    background: #05070a;
+    background-image: radial-gradient(circle at 15% 0%, rgba(16,255,156,0.10), transparent 40%),
+                       radial-gradient(circle at 85% 100%, rgba(16,255,156,0.06), transparent 45%);
+    min-height: 100vh;
+  }
+  html.light body {
+    background: #f3f6f5;
+    background-image: radial-gradient(circle at 15% 0%, rgba(16,185,129,0.08), transparent 40%),
+                       radial-gradient(circle at 85% 100%, rgba(16,185,129,0.06), transparent 45%);
+  }
+  .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  html.light .glass { background: rgba(255,255,255,0.65); border: 1px solid rgba(0,0,0,0.06); }
+  .glass-strong { background: rgba(255,255,255,0.06); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.1); }
+  html.light .glass-strong { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.06); }
+  .press:active { transform: scale(0.96); }
+  .press { transition: transform 0.12s ease; }
+  .neon-text { text-shadow: 0 0 18px rgba(16,255,156,0.45); }
+  .neon-btn { background: linear-gradient(135deg, #10ff9c 0%, #059669 100%); box-shadow: 0 8px 24px rgba(16,255,156,0.25); }
+  ::-webkit-scrollbar { display: none; }
+  .fade-in { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .strike { text-decoration: line-through; opacity: 0.45; }
+  .spinner { border: 3px solid rgba(16,255,156,0.15); border-top-color: #10ff9c; border-radius: 50%; width: 22px; height: 22px; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .tab-active { color: #10ff9c; }
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+</style>
+</head>
+<body class="text-slate-100 dark">
+<div id="app" class="max-w-md mx-auto min-h-screen relative"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, where, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC64-9gVTJZf71r-gp50QIiEeHPUm_TOyk",
+  authDomain: "all-note-e0e32.firebaseapp.com",
+  projectId: "all-note-e0e32",
+  storageBucket: "all-note-e0e32.firebasestorage.app",
+  messagingSenderId: "667707208294",
+  appId: "1:667707208294:web:2f1246781240f47618f3a7"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const provider = new GoogleAuthProvider();
+
+// ---------- State ----------
+let currentUser = null;
+let activeTab = 'home';
+let journalEntries = [];
+let expenses = [];
+let todos = [];
+let unsubJournal = null, unsubExpenses = null, unsubTodos = null;
+
+const appEl = document.getElementById('app');
+
+// ---------- Theme ----------
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.classList.remove('dark', 'light');
+  document.documentElement.classList.add(saved);
+}
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  document.documentElement.classList.remove('dark', 'light');
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.classList.add(next);
+  localStorage.setItem('theme', next);
+  render();
+}
+initTheme();
+
+// ---------- Auth ----------
+function doLogin() {
+  const btn = document.getElementById('googleLoginBtn');
+  if (btn) btn.innerHTML = '<div class="spinner mx-auto"></div>';
+  signInWithPopup(auth, provider).catch((err) => {
+    console.error(err);
+    alert('লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+    render();
+  });
+}
+function doLogout() { signOut(auth); }
+
+// --- সিকিউরিটি লক ---
+const myEmail = "tarikulislamsupel755@gmail.com";
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    if (user.email !== myEmail) {
+      alert('দুঃখিত! এটি একটি সম্পূর্ণ ব্যক্তিগত অ্যাপ। আপনার এখানে প্রবেশাধিকার নেই।');
+      signOut(auth);
+      return;
+    }
+    currentUser = user;
+    attachListeners(user.uid);
+  } else {
+    currentUser = null;
+    detachListeners();
+    journalEntries = []; expenses = []; todos = [];
+  }
+  render();
+});
+
+function attachListeners(uid) {
+  detachListeners();
+  const jQ = query(collection(db, 'journal_entries'), where('uid', '==', uid));
+  unsubJournal = onSnapshot(jQ, (snap) => {
+    journalEntries = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    if (activeTab === 'journal') render();
+  });
+  const eQ = query(collection(db, 'expenses'), where('uid', '==', uid));
+  unsubExpenses = onSnapshot(eQ, (snap) => {
+    expenses = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    if (activeTab === 'home') render();
+  });
+  const tQ = query(collection(db, 'todos'), where('uid', '==', uid));
+  unsubTodos = onSnapshot(tQ, (snap) => {
+    todos = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    if (activeTab === 'home') render();
+  });
+}
+function detachListeners() {
+  if (unsubJournal) unsubJournal(); if (unsubExpenses) unsubExpenses(); if (unsubTodos) unsubTodos();
+  unsubJournal = unsubExpenses = unsubTodos = null;
+}
+
+// ---------- Firestore actions ----------
+async function addTodo(text) {
+  if (!text.trim() || !currentUser) return;
+  await addDoc(collection(db, 'todos'), { uid: currentUser.uid, text: text.trim(), done: false, createdAt: serverTimestamp() });
+}
+async function toggleTodo(id, done) { await updateDoc(doc(db, 'todos', id), { done: !done }); }
+async function removeTodo(id) { await deleteDoc(doc(db, 'todos', id)); }
+async function addExpense(type, amount, note) {
+  if (!amount || isNaN(amount) || !currentUser) return;
+  await addDoc(collection(db, 'expenses'), {
+    uid: currentUser.uid, type, amount: parseFloat(amount), note: note.trim() || (type === 'income' ? 'আয়' : 'খরচ'), createdAt: serverTimestamp()
+  });
+}
+async function removeExpense(id) { await deleteDoc(doc(db, 'expenses', id)); }
+async function addJournal(text) {
+  if (!text.trim() || !currentUser) return;
+  await addDoc(collection(db, 'journal_entries'), { uid: currentUser.uid, text: text.trim(), createdAt: serverTimestamp() });
+}
+async function removeJournal(id) { await deleteDoc(doc(db, 'journal_entries', id)); }
+
+// ---------- Helpers ----------
+function fmtDateTime(ts) {
+  if (!ts) return 'এখন';
+  const d = new Date(ts.seconds * 1000);
+  const day = d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+  const time = d.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+  return `${day}, ${time}`;
+}
+function balance() { return expenses.reduce((acc, e) => acc + (e.type === 'income' ? e.amount : -e.amount), 0); }
+function fmtMoney(n) { return '৳' + Number(n).toLocaleString('en-BD', { maximumFractionDigits: 2 }); }
+function icon(name, extra = '') { return `<i class="fa-solid ${name} ${extra}"></i>`; }
+
+// ---------- Views ----------
+function loginView() {
+  return `
+  <div class="min-h-screen flex flex-col items-center justify-center px-8 safe-top safe-bottom fade-in">
+    <div class="w-24 h-24 rounded-3xl neon-btn flex items-center justify-center mb-8 press">
+      ${icon('fa-layer-group', 'text-3xl text-black/80')}
+    </div>
+    <h1 class="text-3xl font-bold mb-2 neon-text text-center">ডেইলি ট্র্যাকার</h1>
+    <p class="text-slate-400 text-sm mb-12 text-center">আপনার দিন, খরচ ও কাজ — সব এক জায়গায়</p>
+    <button id="googleLoginBtn" onclick="window.__doLogin()"
+      class="w-full glass-strong rounded-2xl h-14 flex items-center justify-center gap-3 press font-semibold text-[15px]">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.6 3 24 3c-7.7 0-14.3 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 36.5 26.8 37.5 24 37.5c-5.2 0-9.6-3.1-11.3-7.5l-6.5 5C9.6 40.6 16.3 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.3 5.3C40.4 36.5 43 30.9 43 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
+      Google দিয়ে লগইন করুন
+    </button>
+    <p class="text-slate-500 text-xs mt-6 text-center">শুধুমাত্র অনুমোদিত ব্যবহারকারীর জন্য</p>
+  </div>`;
+}
+
+function headerView(title, subtitle) {
+  const photo = currentUser?.photoURL;
+  return `
+  <div class="px-5 pt-4 pb-2 flex items-center justify-between safe-top">
+    <div>
+      <h1 class="text-2xl font-bold">${title}</h1>
+      ${subtitle ? `<p class="text-slate-400 text-xs mt-0.5">${subtitle}</p>` : ''}
+    </div>
+    <div class="w-10 h-10 rounded-full overflow-hidden glass flex items-center justify-center">
+      ${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : icon('fa-user', 'text-sm')}
+    </div>
+  </div>`;
+}
+
+function homeView() {
+  const bal = balance();
+  const balColor = bal >= 0 ? 'text-emerald-glow' : 'text-red-400';
+  const pendingTodos = todos.filter(t => !t.done);
+  const doneTodos = todos.filter(t => t.done);
+
+  return `
+  <div class="fade-in pb-32">
+    ${headerView('হোম', currentUser ? `স্বাগতম, ${(currentUser.displayName || '').split(' ')[0]}` : '')}
+
+    <div class="mx-5 mt-3 rounded-3xl glass-strong p-5 relative overflow-hidden">
+      <p class="text-slate-400 text-xs font-semibold tracking-wide uppercase mb-1">বর্তমান ব্যালেন্স</p>
+      <p class="text-3xl font-bold ${balColor} neon-text">${fmtMoney(bal)}</p>
+      <div class="flex gap-2 mt-4">
+        <button onclick="window.__openExpenseForm('income')" class="flex-1 h-11 rounded-xl neon-btn press font-semibold text-black/80 text-sm flex items-center justify-center gap-2">${icon('fa-plus')} আয়</button>
+        <button onclick="window.__openExpenseForm('expense')" class="flex-1 h-11 rounded-xl glass press font-semibold text-sm flex items-center justify-center gap-2">${icon('fa-minus')} খরচ</button>
+      </div>
+    </div>
+
+    <div class="mx-5 mt-5">
+      <p class="text-slate-400 text-xs font-semibold tracking-wide uppercase mb-2">সাম্প্রতিক লেনদেন</p>
+      <div class="rounded-2xl glass divide-y divide-white/5 overflow-hidden">
+        ${expenses.length === 0 ? emptyState('fa-wallet', 'এখনো কোনো লেনদেন নেই') :
+          expenses.slice(0, 5).map(e => `
+          <div class="flex items-center gap-3 px-4 py-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center ${e.type === 'income' ? 'bg-emerald-glow/15 text-emerald-glow' : 'bg-red-400/15 text-red-400'}">
+              ${icon(e.type === 'income' ? 'fa-arrow-down' : 'fa-arrow-up', 'text-xs')}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">${escapeHtml(e.note)}</p>
+              <p class="text-[11px] text-slate-500">${fmtDateTime(e.createdAt)}</p>
+            </div>
+            <p class="font-semibold text-sm ${e.type === 'income' ? 'text-emerald-glow' : 'text-red-400'}">${e.type === 'income' ? '+' : '-'}${fmtMoney(e.amount)}</p>
+            <button onclick="window.__removeExpense('${e.id}')" class="text-slate-500 press w-8 h-8 flex items-center justify-center">${icon('fa-xmark', 'text-xs')}</button>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="mx-5 mt-6">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-slate-400 text-xs font-semibold tracking-wide uppercase">টু-ডু লিস্ট</p>
+        <p class="text-[11px] text-slate-500">${pendingTodos.length} বাকি</p>
+      </div>
+      <div class="rounded-2xl glass p-3 mb-3">
+        <form onsubmit="window.__submitTodo(event)" class="flex gap-2">
+          <input id="todoInput" type="text" placeholder="নতুন কাজ লিখুন..." class="flex-1 bg-transparent outline-none text-sm placeholder-slate-500 px-2">
+          <button type="submit" class="w-10 h-10 rounded-xl neon-btn press flex items-center justify-center flex-shrink-0">${icon('fa-plus', 'text-black/80 text-xs')}</button>
+        </form>
+      </div>
+      <div class="rounded-2xl glass divide-y divide-white/5 overflow-hidden">
+        ${todos.length === 0 ? emptyState('fa-list-check', 'কোনো কাজ যোগ করা হয়নি') :
+          [...pendingTodos, ...doneTodos].map(t => `
+          <div class="flex items-center gap-3 px-4 py-3">
+            <button onclick="window.__toggleTodo('${t.id}', ${t.done})" class="w-6 h-6 rounded-full border-2 ${t.done ? 'bg-emerald-glow border-emerald-glow' : 'border-slate-500'} flex items-center justify-center flex-shrink-0 press">
+              ${t.done ? icon('fa-check', 'text-[10px] text-black') : ''}
+            </button>
+            <p class="flex-1 text-sm ${t.done ? 'strike' : ''}">${escapeHtml(t.text)}</p>
+            <button onclick="window.__removeTodo('${t.id}')" class="text-slate-500 press w-8 h-8 flex items-center justify-center">${icon('fa-trash', 'text-xs')}</button>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function journalView() {
+  return `
+  <div class="fade-in pb-32">
+    ${headerView('জার্নাল', 'আপনার দিনের কথা লিখুন')}
+    <div class="mx-5 mt-3 rounded-2xl glass-strong p-4">
+      <textarea id="journalInput" rows="4" placeholder="আজকে কেমন গেল দিন?" class="w-full bg-transparent outline-none text-sm placeholder-slate-500 resize-none"></textarea>
+      <div class="flex justify-end mt-2">
+        <button onclick="window.__submitJournal()" class="px-5 h-10 rounded-xl neon-btn press font-semibold text-black/80 text-sm flex items-center gap-2">
+          ${icon('fa-floppy-disk', 'text-xs')} সেভ করুন
+        </button>
+      </div>
+    </div>
+    <div class="mx-5 mt-5">
+      <p class="text-slate-400 text-xs font-semibold tracking-wide uppercase mb-2">আগের এন্ট্রি</p>
+      <div class="space-y-3">
+        ${journalEntries.length === 0 ? `<div class="rounded-2xl glass">${emptyState('fa-book-open', 'এখনো কোনো এন্ট্রি নেই')}</div>` :
+          journalEntries.map(j => `
+          <div class="rounded-2xl glass p-4">
+            <div class="flex items-start justify-between gap-2">
+              <p class="text-[11px] text-emerald-glow font-semibold">${fmtDateTime(j.createdAt)}</p>
+              <button onclick="window.__removeJournal('${j.id}')" class="text-slate-500 press w-6 h-6 flex items-center justify-center flex-shrink-0">${icon('fa-trash', 'text-xs')}</button>
+            </div>
+            <p class="text-sm mt-1.5 whitespace-pre-wrap leading-relaxed">${escapeHtml(j.text)}</p>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function settingsView() {
+  const isDark = document.documentElement.classList.contains('dark');
+  return `
+  <div class="fade-in pb-32">
+    ${headerView('সেটিংস', '')}
+    <div class="mx-5 mt-3 rounded-2xl glass-strong p-5 flex items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl overflow-hidden glass flex items-center justify-center flex-shrink-0">
+        ${currentUser?.photoURL ? `<img src="${currentUser.photoURL}" class="w-full h-full object-cover">` : icon('fa-user')}
+      </div>
+      <div class="min-w-0">
+        <p class="font-semibold truncate">${currentUser?.displayName || 'ব্যবহারকারী'}</p>
+        <p class="text-slate-400 text-xs truncate">${currentUser?.email || ''}</p>
+      </div>
+    </div>
+    <div class="mx-5 mt-5 rounded-2xl glass overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-glow/15 text-emerald-glow flex items-center justify-center">${icon(isDark ? 'fa-moon' : 'fa-sun', 'text-sm')}</div>
+          <p class="text-sm font-medium">${isDark ? 'ডার্ক মোড' : 'লাইট মোড'}</p>
+        </div>
+        <button onclick="window.__toggleTheme()" class="w-14 h-8 rounded-full ${isDark ? 'neon-btn' : 'bg-slate-300'} relative press flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-white absolute top-1 transition-all ${isDark ? 'left-7' : 'left-1'} shadow"></div>
+        </button>
+      </div>
+    </div>
+    <div class="mx-5 mt-5">
+      <button onclick="window.__logout()" class="w-full h-14 rounded-2xl glass press font-semibold text-red-400 text-sm flex items-center justify-center gap-2">
+        ${icon('fa-right-from-bracket')} লগ আউট
+      </button>
+    </div>
+  </div>`;
+}
+
+function emptyState(iconName, text) {
+  return `<div class="flex flex-col items-center justify-center py-10 text-slate-500">${icon(iconName, 'text-2xl mb-2 opacity-40')}<p class="text-xs">${text}</p></div>`;
+}
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+function bottomNav() {
+  const tabs = [
+    { id: 'home', icon: 'fa-house', label: 'হোম' },
+    { id: 'journal', icon: 'fa-book', label: 'জার্নাল' },
+    { id: 'settings', icon: 'fa-gear', label: 'সেটিংস' },
+  ];
+  return `
+  <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto safe-bottom">
+    <div class="glass-strong mx-4 mb-4 rounded-3xl flex items-center justify-around py-2 px-2">
+      ${tabs.map(t => `
+        <button onclick="window.__setTab('${t.id}')" class="flex-1 flex flex-col items-center gap-1 py-2 press ${activeTab === t.id ? 'tab-active' : 'text-slate-500'}">
+          ${icon(t.icon, 'text-lg')}
+          <span class="text-[10px] font-semibold">${t.label}</span>
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function expenseModal(type) {
+  return `
+  <div id="expenseModalBg" onclick="if(event.target.id==='expenseModalBg') window.__closeExpenseForm()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end fade-in">
+    <div class="glass-strong w-full rounded-t-3xl p-6 max-w-md mx-auto safe-bottom">
+      <div class="w-10 h-1.5 bg-slate-600 rounded-full mx-auto mb-5"></div>
+      <h2 class="text-lg font-bold mb-4">${type === 'income' ? 'আয় যোগ করুন' : 'খরচ যোগ করুন'}</h2>
+      <form onsubmit="window.__submitExpense(event, '${type}')" class="space-y-3">
+        <input id="expenseAmount" type="number" step="0.01" inputmode="decimal" placeholder="৳ পরিমাণ লিখুন" required class="w-full h-14 rounded-2xl glass px-4 outline-none text-base font-semibold">
+        <input id="expenseNote" type="text" placeholder="নোট (যেমন: বাজার, বেতন)" class="w-full h-14 rounded-2xl glass px-4 outline-none text-sm">
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="window.__closeExpenseForm()" class="flex-1 h-[52px] rounded-2xl glass press font-semibold text-sm">বাতিল</button>
+          <button type="submit" class="flex-1 h-[52px] rounded-2xl neon-btn press font-semibold text-black/80 text-sm">সেভ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+let expenseFormType = null;
+
+// ---------- Render ----------
+function render() {
+  if (!currentUser) { appEl.innerHTML = loginView(); return; }
+  let view = '';
+  if (activeTab === 'home') view = homeView();
+  else if (activeTab === 'journal') view = journalView();
+  else view = settingsView();
+  appEl.innerHTML = view + bottomNav() + (expenseFormType ? expenseModal(expenseFormType) : '');
+}
+
+// ---------- Global handlers ----------
+window.__doLogin = doLogin;
+window.__logout = doLogout;
+window.__toggleTheme = toggleTheme;
+window.__setTab = (tab) => { activeTab = tab; render(); };
+window.__openExpenseForm = (type) => { expenseFormType = type; render(); };
+window.__closeExpenseForm = () => { expenseFormType = null; render(); };
+window.__submitExpense = (e, type) => {
+  e.preventDefault();
+  const amount = document.getElementById('expenseAmount').value;
+  const note = document.getElementById('expenseNote').value;
+  addExpense(type, amount, note);
+  expenseFormType = null;
+  render();
+};
+window.__removeExpense = (id) => removeExpense(id);
+window.__submitTodo = (e) => {
+  e.preventDefault();
+  const input = document.getElementById('todoInput');
+  addTodo(input.value);
+  input.value = '';
+};
+window.__toggleTodo = (id, done) => toggleTodo(id, done);
+window.__removeTodo = (id) => removeTodo(id);
+window.__submitJournal = () => {
+  const input = document.getElementById('journalInput');
+  addJournal(input.value);
+  input.value = '';
+};
+window.__removeJournal = (id) => removeJournal(id);
+
+appEl.innerHTML = `<div class="min-h-screen flex items-center justify-center"><div class="spinner"></div></div>`;
+</script>
+</body>
+</html>
