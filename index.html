@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Tailwind Warn Silencer (Mutes OneCompiler/Console warning) -->
+<script>
+  const originalWarn = console.warn;
+  console.warn = function(...args) {
+    if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script>
@@ -137,7 +148,6 @@
   .toast{ animation: toastIn .3s ease; }
   @keyframes toastIn{ from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);} }
   
-  /* Input Date icon coloring hack for dark mode */
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
   html.light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 </style>
@@ -261,7 +271,6 @@
     <section id="view-recovery" class="app-view px-5 pt-6">
       <h1 class="text-xl font-extrabold mb-4 lang-str" data-key="recoveryTitle">Addiction Recovery</h1>
       
-      <!-- Detailed Stats -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="glass-strong rounded-3xl p-5 text-center col-span-2 relative overflow-hidden">
           <p class="text-xs font-semibold mb-1 uppercase tracking-wider lang-str" data-key="currentStreak" style="color:var(--text-3)">Current Streak</p>
@@ -278,7 +287,6 @@
         </div>
       </div>
 
-      <!-- Editable Rules / Notes -->
       <div class="glass rounded-2xl p-4 mb-5 border-l-4 border-l-cyan-500">
         <div class="flex items-center justify-between mb-2">
           <p class="text-sm font-bold text-cyan-400 lang-str" data-key="recoveryTipsTitle">My Motivation / Rules</p>
@@ -304,7 +312,6 @@
         <input id="global-search" oninput="handleGlobalSearch()" type="text" placeholder="Search ideas, links..." class="field w-full rounded-2xl pl-10 pr-4 py-3 text-sm lang-ph" data-key="searchPlaceholder" />
       </div>
 
-      <!-- New Feature: Date Filter -->
       <div class="glass rounded-2xl p-4 mb-5 border border-[#10ff9c]/20">
         <p class="text-xs font-bold mb-2 lang-str" data-key="filterDateTitle">Filter Activity by Date</p>
         <input type="date" id="filter-date" onchange="filterByDate()" class="field w-full rounded-xl px-3.5 py-2.5 text-sm" />
@@ -345,6 +352,10 @@
         <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-links')">
           <div class="w-10 h-10 rounded-full bg-cyan-500/15 flex items-center justify-center text-cyan-400"><i class="fa-solid fa-link"></i></div>
           <span class="text-[11px] font-bold lang-str" data-key="bookmarkSaver">Bookmarks</span>
+        </button>
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press col-span-2" onclick="openSubView('view-vault')">
+          <div class="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center text-red-400"><i class="fa-solid fa-vault"></i></div>
+          <span class="text-[11px] font-bold lang-str" data-key="vaultTitle">Secure Vault</span>
         </button>
       </div>
     </section>
@@ -567,6 +578,36 @@
       <div id="links-list" class="space-y-2"></div>
     </section>
 
+    <!-- SUB: Secure Vault (নতুন ৫ নম্বর) -->
+    <section id="view-vault" class="app-view px-5 pt-6">
+      <div class="flex items-center gap-3 mb-6">
+        <button onclick="closeSubView(); lockVault();" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1 class="text-xl font-extrabold lang-str" data-key="vaultTitle">Secure Vault</h1>
+      </div>
+      
+      <!-- lock state -->
+      <div id="vault-lock-screen" class="glass-strong rounded-3xl p-6 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-red-500/10 grid place-items-center text-red-400 text-2xl">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="font-bold text-sm" id="vault-lock-msg">Enter Vault PIN</h2>
+        <input id="vault-pin-input" type="password" maxlength="4" placeholder="••••" class="field text-center tracking-widest text-xl font-bold w-32 rounded-xl py-2" />
+        <button onclick="checkVaultPin()" class="press w-full rounded-xl py-3 font-bold text-sm bg-mint-500 text-gray-900">Unlock</button>
+      </div>
+
+      <!-- unlock state -->
+      <div id="vault-unlocked-screen" class="hidden space-y-4">
+        <div class="glass rounded-2xl p-4 border border-red-500/20">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-red-400 lang-str" data-key="secureData">Secret Notes</span>
+            <button onclick="saveVaultNote()" class="press text-[10px] bg-mint-500/20 text-mint-400 px-3 py-1.5 rounded font-bold">Save</button>
+          </div>
+          <textarea id="vault-textarea" rows="8" placeholder="Keep passwords, private notes safe here..." class="field w-full rounded-xl p-3 text-sm resize-none"></textarea>
+        </div>
+        <button onclick="lockVault()" class="press w-full rounded-xl py-2.5 text-xs font-bold bg-white/5 text-red-400">Lock Vault</button>
+      </div>
+    </section>
+
     <!-- SUB: Trash -->
     <section id="view-trash" class="app-view px-5 pt-6">
       <div class="flex items-center gap-3 mb-6">
@@ -635,13 +676,20 @@
   <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str" data-key="cancel" style="color:var(--text-3)">Cancel</button>
 </div>
 
-<!-- Add Fund (Deposit) Modal -->
+<!-- Add Fund (Deposit) Modal (অটো-লিংক চেক বক্সসহ) -->
 <div id="fund-modal" class="sheet glass-strong rounded-t-[28px] p-5 hidden-sheet">
   <div class="w-10 h-1.5 rounded-full mx-auto mb-4" style="background:rgba(120,140,135,0.3)"></div>
   <h3 class="font-bold text-lg mb-4 lang-str" data-key="addFundsTitle">Add Funds</h3>
   <input type="hidden" id="fund-col">
   <input type="hidden" id="fund-id">
-  <input id="fund-amount" type="number" placeholder="Amount ৳" class="field w-full rounded-xl px-4 py-3 text-lg font-bold mb-5" />
+  <input id="fund-amount" type="number" placeholder="Amount ৳" class="field w-full rounded-xl px-4 py-3 text-lg font-bold mb-4" />
+  
+  <!-- Auto-Expense Checkbox (নতুন ৪ নম্বর) -->
+  <label class="flex items-center gap-2.5 text-xs font-semibold cursor-pointer mb-5">
+    <input type="checkbox" id="fund-auto-expense" class="w-4.5 h-4.5 rounded text-mint-500 focus:ring-mint-500" style="accent-color:#10ff9c" />
+    <span class="lang-str" data-key="autoExpenseLabel">Also log as Expense in Transactions</span>
+  </label>
+
   <button onclick="submitFund()" class="press w-full rounded-2xl py-3.5 font-bold text-sm mb-2 lang-str" data-key="saveDeposit" style="background:#10ff9c; color:#04140d">Save Deposit</button>
   <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str" data-key="cancel" style="color:var(--text-3)">Cancel</button>
 </div>
@@ -706,7 +754,8 @@ const TRANSLATIONS = {
     studyTracker: "Study Tracker", subjectName: "Subject name...", studyHours: "Hours", didNotStudy: "Didn't study", reasonNotStudied: "Why didn't you study?", saveLog: "Save Log", noStudyYet: "No study logs",
     microJobs: "Micro-Jobs", addNewSite: "Add New Site (Folder)", siteName: "Site name...", logIncome: "Log Income", saveIncome: "Save Income", siteFolders: "Site Folders", noSites: "No sites added",
     addFundsTitle: "Add Funds", saveDeposit: "Save Deposit", historyLabel: "History", noHistory: "No deposits yet",
-    filterDateTitle: "Filter Activity by Date", noActivityOnDate: "No activity found on this date"
+    filterDateTitle: "Filter Activity by Date", noActivityOnDate: "No activity found on this date",
+    vaultTitle: "Secure Vault", secureData: "Secret Notes", autoExpenseLabel: "Also log as Expense in Transactions"
   },
   bn: {
     welcome: "স্বাগতম", subWelcome: "আপনার ব্যক্তিগত অ্যাকাউন্ট দিয়ে সাইন ইন করুন", email: "ইমেইল", password: "পাসওয়ার্ড",
@@ -716,7 +765,7 @@ const TRANSLATIONS = {
     goalProgress: "লক্ষ্যসমূহ", goalName: "লক্ষ্যের নাম...", savingTarget: "লক্ষ্য ৳",
     savingsGoals: "সঞ্চয়", fundName: "সঞ্চয়ের নাম...", noSavingsYet: "খালি", of: "এর মধ্যে", left: "বাকি",
     debtTracker: "ধার / দেনা", iOwe: "আমি দেব", owedToMe: "আমাকে দেবে", person: "ব্যক্তি", addEntry: "তথ্য যোগ করুন", youOwe: "আপনাকে দিতে হবে", owesYou: "আপনার কাছে পাবে", noDebtsYet: "কোনো ধার বা দেনা নেই",
-    watchList: "ওয়াচলিস্ট", watchInput: "বই বা সিনেমার নাম...", listEmpty: "তালিকাটি খালি", bookmarkSaver: "বুকমার্ক", title: "শিরোনাম", noLinksYet: "কোনো লিংক সংরক্ষিত নেই",
+    watchList: "ওয়াচলিস্ট", watchInput: "বই বা সিনেমার নাম...", listEmpty: "তালিকাটি খালি", bookmarkSaver: "বुकমার্ক", title: "শিরোনাম", noLinksYet: "কোনো লিংক সংরক্ষিত নেই",
     journal: "জার্নাল", journalPlaceholder: "আজ আপনার মনে কী চলছে?", saveEntry: "সংরক্ষণ করুন", journalEmpty: "আপনার জার্নাল খালি।",
     settings: "সেটিংস", ownerAccount: "নেক্সাস মালিক অ্যাকাউন্ট", lightMode: "লাইট মোড", languageLabel: "ভাষা / Language", dataMgmt: "ডাটা ম্যানেজমেন্ট",
     exportBackup: "ব্যাকআপ ডাউনলোড", importBackup: "ব্যাকআপ আপলোড", logout: "লগআউট", trashBin: "রিসাইকেল বিন", trashEmpty: "বিন খালি", restore: "পুনরুদ্ধার", deletePerm: "চিরতরে মুছুন",
@@ -730,7 +779,8 @@ const TRANSLATIONS = {
     studyTracker: "স্টাডি ট্র্যাকার", subjectName: "সাবজেক্টের নাম...", studyHours: "ঘণ্টা", didNotStudy: "পড়িনি", reasonNotStudied: "কেন পড়েননি?", saveLog: "লগ সেভ করুন", noStudyYet: "কোনো পড়ার তথ্য নেই",
     microJobs: "মাইক্রো-জবস", addNewSite: "নতুন সাইট যোগ করুন", siteName: "সাইটের নাম...", logIncome: "ইনকাম যোগ করুন", saveIncome: "ইনকাম সেভ করুন", siteFolders: "সাইট ফোল্ডারসমূহ", noSites: "কোনো সাইট নেই",
     addFundsTitle: "টাকা যোগ করুন", saveDeposit: "জমা সেভ করুন", historyLabel: "হিস্ট্রি", noHistory: "কোনো জমার তথ্য নেই",
-    filterDateTitle: "তারিখ অনুযায়ী ফিল্টার করুন", noActivityOnDate: "এই তারিখে কোনো তথ্য নেই"
+    filterDateTitle: "তারিখ অনুযায়ী ফিল্টার করুন", noActivityOnDate: "এই তারিখে কোনো তথ্য নেই",
+    vaultTitle: "গোপন ভল্ট", secureData: "গোপন নোটসমূহ", autoExpenseLabel: "হোম পেজে খরচ হিসেবে অটো-সেভ করুন"
   }
 };
 
@@ -753,10 +803,14 @@ let transactions = [], ideas = [], goals = [], savings = [], debts = [], watchli
 let relapses = [], studies = [], microSites = [], microIncomes = [];
 let selectedTxnType = 'expense', selectedTxnCategory = 'Food', selectedDebtType = 'owe';
 
+// Vault States (গোপন ভল্ট)
+let vaultUnlocked = false;
+let vaultPin = null;
+let vaultNote = '';
+
 function fmtMoney(n){ return '৳' + translateNumber(Number(n||0).toLocaleString('en-US', {maximumFractionDigits:2})); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
-// Updated Date Generator to include standard isoDate (YYYY-MM-DD) for robust filtering
 function generateDateStrings() {
   const d = new Date();
   const dStr = d.toLocaleDateString(currentLang === 'bn' ? 'bn-BD' : 'en-US', {year:'numeric', month:'short', day:'numeric'});
@@ -824,6 +878,19 @@ function attachListeners(){
   // Sync Motivation Note
   unsubscribers.push(window._fb.onSnapshot(userDoc('meta','recovery'), s=>{ 
     if(s.exists()){ document.getElementById('recovery-motivation').value = s.data().text || ''; } 
+  }));
+
+  // Sync Secure Vault Config
+  unsubscribers.push(window._fb.onSnapshot(userDoc('meta','vault'), s=>{
+    if(s.exists()){
+      const d = s.data();
+      vaultPin = d.pin || null;
+      vaultNote = d.note || '';
+    } else {
+      vaultPin = null;
+      vaultNote = '';
+    }
+    renderVault();
   }));
 }
 
@@ -977,12 +1044,16 @@ function renderRecovery(){
   const list = document.getElementById('relapse-list');
   if(!relapses.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noRelapsesYet}</p>`; return; }
   list.innerHTML = relapses.map(r=>`
-    <div class="glass rounded-2xl px-4 py-3 border-l-2 border-l-red-500">
-      <div class="flex items-center justify-between mb-1">
-        <p class="text-xs font-bold text-red-400 uppercase tracking-wide">${r.reason}</p>
-        <span class="text-[10px]" style="color:var(--text-3)">${r.dateStr} · ${r.timeStr}</span>
+    <div class="glass rounded-2xl px-4 py-3 border-l-2 border-l-red-500 flex justify-between items-start">
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center justify-between mb-1">
+          <p class="text-xs font-bold text-red-400 uppercase tracking-wide">${r.reason}</p>
+          <span class="text-[10px] pr-2" style="color:var(--text-3)">${r.dateStr} · ${r.timeStr}</span>
+        </div>
+        ${r.note ? `<p class="text-sm mt-2">${escapeHtml(r.note)}</p>` : ''}
       </div>
-      ${r.note ? `<p class="text-sm mt-2">${escapeHtml(r.note)}</p>` : ''}
+      <!-- Relapse Delete Button (আসক্তি মুক্তি ডিলিট) -->
+      <button onclick="moveToTrash('relapses','${r.id}')" class="shrink-0 press ml-2 text-gray-500" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
     </div>`).join('');
 }
 
@@ -1105,12 +1176,15 @@ window.openFundModal = function(col, id){
   document.getElementById('fund-col').value = col;
   document.getElementById('fund-id').value = id;
   document.getElementById('fund-amount').value = '';
+  document.getElementById('fund-auto-expense').checked = false; // reset checkbox
   openModal('fund-modal');
 };
+
 window.submitFund = async function(){
   const col = document.getElementById('fund-col').value;
   const id = document.getElementById('fund-id').value;
   const amount = parseFloat(document.getElementById('fund-amount').value);
+  const autoExpense = document.getElementById('fund-auto-expense').checked;
   if(!amount) return;
   const { dStr, tStr, isoDate } = generateDateStrings();
   
@@ -1119,11 +1193,24 @@ window.submitFund = async function(){
   const newHist = [...(item.history||[])];
   newHist.push({ amount, dateStr: dStr, timeStr: tStr, isoDate, ms: Date.now() });
   
+  // Auto-Expense (নতুন ৪ নম্বর)
+  if (autoExpense) {
+    await window._fb.addDoc(userCol('transactions'), {
+      type: 'expense',
+      category: 'Others',
+      amount: amount,
+      note: `${col==='goals'?'Goal':'Savings'} Fund: ${item.name}`,
+      dateStr: dStr,
+      timeStr: tStr,
+      isoDate,
+      createdAt: window._fb.serverTimestamp()
+    });
+  }
+
   await window._fb.updateDoc(userDoc(col, id), { history: newHist });
   closeAllModals(); toast('Funds added');
 };
 
-// Handle Deleting internal history from Goals/Savings
 window.deleteFundHistory = async function(col, docId, ms) {
   const arr = col === 'goals' ? goals : savings;
   const item = arr.find(x => x.id === docId);
@@ -1211,18 +1298,122 @@ function renderDebts(){
     </div>`).join('');
 }
 
-// IDEAS, WATCHLIST, LINKS, JOURNAL
+// IDEAS, WATCHLIST, LINKS (বুকমার্ক ও পিনড লিংক), JOURNAL
 window.addIdea = async function(){ const v=document.getElementById('idea-input').value.trim(); if(!v)return; const { dStr, tStr, isoDate } = generateDateStrings(); await window._fb.addDoc(userCol('ideas'),{text:v, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('idea-input').value=''; toast('Idea saved'); };
 function renderIdeas(){ document.getElementById('ideas-list').innerHTML = ideas.map(i=>`<div class="flex items-start gap-3 field rounded-xl px-3.5 py-3"><i class="fa-solid fa-lightbulb text-sm text-yellow-400 shrink-0 mt-0.5"></i><div class="flex-1 min-w-0"><p class="text-sm break-words">${escapeHtml(i.text)}</p><p class="text-[10px] mt-1" style="color:var(--text-3)">${i.dateStr||''} · ${i.timeStr||''}</p></div><button onclick="moveToTrash('ideas','${i.id}')" class="shrink-0" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div>`).join(''); }
 
 window.addWatch = async function(){ const v=document.getElementById('watch-input').value.trim(); if(!v)return; const { dStr, tStr, isoDate } = generateDateStrings(); await window._fb.addDoc(userCol('watchlist'),{title:v, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('watch-input').value=''; toast('Added'); };
 function renderWatchlist(){ document.getElementById('watch-list').innerHTML = watchlist.map(w=>`<div class="flex items-center gap-3 field rounded-xl px-3.5 py-3"><div class="flex-1 min-w-0"><p class="text-sm truncate">${escapeHtml(w.title)}</p><p class="text-[10px] mt-0.5" style="color:var(--text-3)">${w.dateStr||''} · ${w.timeStr||''}</p></div><button onclick="moveToTrash('watchlist','${w.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div>`).join(''); }
 
-window.addLink = async function(){ const t=document.getElementById('link-title').value.trim(); let u=document.getElementById('link-url').value.trim(); if(!t||!u)return; if(!/^https?:\/\//i.test(u))u='https://'+u; const { dStr, tStr, isoDate } = generateDateStrings(); await window._fb.addDoc(userCol('links'),{title:t,url:u, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('link-title').value=''; document.getElementById('link-url').value=''; toast('Saved'); };
-function renderLinks(){ document.getElementById('links-list').innerHTML = links.map(l=>`<div class="flex items-center gap-3 field rounded-xl px-3.5 py-3"><a href="${l.url}" target="_blank" class="min-w-0 flex-1"><p class="text-sm font-semibold truncate">${escapeHtml(l.title)}</p><p class="text-[11px] truncate mt-0.5" style="color:var(--text-3)">${escapeHtml(l.url)}</p><p class="text-[10px] mt-1" style="color:var(--text-3)">${l.dateStr||''} · ${l.timeStr||''}</p></a><button onclick="moveToTrash('links','${l.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div>`).join(''); }
+window.addLink = async function(){ 
+  const t=document.getElementById('link-title').value.trim(); 
+  let u=document.getElementById('link-url').value.trim(); 
+  if(!t||!u)return; 
+  if(!/^https?:\/\//i.test(u))u='https://'+u; 
+  const { dStr, tStr, isoDate } = generateDateStrings(); 
+  await window._fb.addDoc(userCol('links'),{title:t,url:u, pinned:false, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); 
+  document.getElementById('link-title').value=''; document.getElementById('link-url').value=''; toast('Saved'); 
+};
+
+window.togglePinLink = async function(id, currentlyPinned) {
+  await window._fb.updateDoc(userDoc('links', id), { pinned: !currentlyPinned });
+  toast(!currentlyPinned ? 'Pinned Bookmark' : 'Unpinned Bookmark');
+};
+
+// Bookmarks + Pinned links inside view-links (আগের ৪ নম্বর)
+function renderLinks(){ 
+  const container = document.getElementById('links-list');
+  const pinnedLinks = links.filter(l => l.pinned);
+  
+  let pinnedHtml = '';
+  if (pinnedLinks.length > 0) {
+    pinnedHtml = `
+      <div class="mb-4">
+        <p class="text-[11px] font-bold uppercase text-mint-500 mb-2">📌 Pinned Shortcuts</p>
+        <div class="flex flex-wrap gap-2">
+          ${pinnedLinks.map(l => `
+            <a href="${l.url}" target="_blank" class="press glass px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-[#10ff9c]/25">
+              <i class="fa-solid fa-link text-[10px] text-mint-500"></i>
+              <span>${escapeHtml(l.title)}</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = pinnedHtml + `<div class="space-y-2">` + links.map(l=>`
+    <div class="flex items-center gap-3 field rounded-xl px-3.5 py-3">
+      <a href="${l.url}" target="_blank" class="min-w-0 flex-1">
+        <p class="text-sm font-semibold truncate flex items-center gap-1.5">
+          ${l.pinned ? '<span class="text-mint-500 text-xs">📌</span>' : ''}
+          <span>${escapeHtml(l.title)}</span>
+        </p>
+        <p class="text-[11px] truncate mt-0.5" style="color:var(--text-3)">${escapeHtml(l.url)}</p>
+        <p class="text-[10px] mt-1" style="color:var(--text-3)">${l.dateStr||''} · ${l.timeStr||''}</p>
+      </a>
+      <div class="flex items-center gap-2.5">
+        <button onclick="togglePinLink('${l.id}', ${!!l.pinned})" class="press ${l.pinned ? 'text-mint-400' : 'text-gray-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+        <button onclick="moveToTrash('links','${l.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
+      </div>
+    </div>`).join('') + `</div>`; 
+}
 
 window.saveJournal = async function(){ const v=document.getElementById('journal-input').value.trim(); if(!v)return; const {dStr,tStr, isoDate}=generateDateStrings(); await window._fb.addDoc(userCol('journal'),{text:v,dateStr:dStr,timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('journal-input').value=''; toast('Entry saved'); };
 function renderJournal(){ document.getElementById('journal-list').innerHTML = journalEntries.map(j=>`<div class="glass rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><p class="text-[11px] font-semibold" style="color:#10ff9c">${j.dateStr||''} · ${j.timeStr||''}</p><button onclick="moveToTrash('journal','${j.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div><p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(j.text)}</p></div>`).join(''); }
+
+// SECURE VAULT FUNCTIONS (নতুন ৫ নম্বর)
+window.lockVault = function() {
+  vaultUnlocked = false;
+  document.getElementById('vault-pin-input').value = '';
+  document.getElementById('vault-lock-screen').classList.remove('hidden');
+  document.getElementById('vault-unlocked-screen').classList.add('hidden');
+  document.getElementById('vault-lock-msg').textContent = vaultPin ? 'Enter Vault PIN' : 'Set a 4-Digit Security PIN';
+};
+
+window.checkVaultPin = async function() {
+  const pinVal = document.getElementById('vault-pin-input').value.trim();
+  if(pinVal.length !== 4) { alert('Enter 4 digits'); return; }
+  
+  if(!vaultPin) {
+    // Set New Pin
+    await window._fb.setDoc(userDoc('meta','vault'), { pin: pinVal, note: '' }, { merge:true });
+    vaultUnlocked = true;
+    toast('Security PIN Set successfully!');
+    renderVault();
+  } else {
+    if(pinVal === vaultPin) {
+      vaultUnlocked = true;
+      renderVault();
+    } else {
+      alert('Wrong PIN!');
+    }
+  }
+};
+
+window.renderVault = function() {
+  const lockMsg = document.getElementById('vault-lock-msg');
+  if(!vaultPin) {
+    lockMsg.textContent = currentLang === 'bn' ? 'একটি ৪-সংখ্যার সিকিউরিটি পিন সেট করুন' : 'Set a 4-Digit Security PIN';
+  } else {
+    lockMsg.textContent = currentLang === 'bn' ? 'সিকিউরিটি পিন দিন' : 'Enter Vault PIN';
+  }
+  
+  if(vaultUnlocked) {
+    document.getElementById('vault-lock-screen').classList.add('hidden');
+    document.getElementById('vault-unlocked-screen').classList.remove('hidden');
+    document.getElementById('vault-textarea').value = vaultNote || '';
+  } else {
+    document.getElementById('vault-lock-screen').classList.remove('hidden');
+    document.getElementById('vault-unlocked-screen').classList.add('hidden');
+  }
+};
+
+window.saveVaultNote = async function() {
+  const note = document.getElementById('vault-textarea').value;
+  await window._fb.updateDoc(userDoc('meta','vault'), { note });
+  toast('Secret note updated securely');
+};
 
 // TRASH
 function renderTrash(){
@@ -1244,16 +1435,14 @@ function renderTrash(){
 window.restoreItem = async function(id){ const r = userDoc('trash',id); const s = await window._fb.getDoc(r); if(s.exists()){ const d = s.data(); await window._fb.setDoc(userDoc(d.originalCollection, d.originalId), d.data); await window._fb.deleteDoc(r); toast('Restored'); } };
 window.permanentlyDeleteItem = async function(id){ if(confirm('Permanently delete?')){ await window._fb.deleteDoc(userDoc('trash',id)); toast('Deleted'); } };
 
-// FILTER BY DATE (New Feature)
+// FILTER BY DATE
 window.filterByDate = function() {
-  const dateVal = document.getElementById('filter-date').value; // Returns YYYY-MM-DD
+  const dateVal = document.getElementById('filter-date').value; 
   const resDiv = document.getElementById('filter-results');
   if(!dateVal) { resDiv.classList.add('hidden'); return; }
   
   const results = [];
   
-  // Helper to extract isoDate from createdAt timestamp 
-  // (to match older records that don't have isoDate field yet)
   const isMatch = (doc) => {
     if(doc.isoDate && doc.isoDate === dateVal) return true;
     if(!doc.createdAt) return false;
@@ -1270,8 +1459,8 @@ window.filterByDate = function() {
   watchlist.forEach(w => { if(isMatch(w)) results.push({ type: 'Watchlist', text: w.title, time: w.timeStr }) });
   links.forEach(l => { if(isMatch(l)) results.push({ type: 'Link', text: l.title, time: l.timeStr }) });
   journalEntries.forEach(j => { if(isMatch(j)) results.push({ type: 'Journal', text: j.text.substring(0,30)+'...', time: j.timeStr }) });
+  relapses.forEach(r => { if(isMatch(r)) results.push({ type: 'Recovery Relapse', text: `${r.reason}${r.note?' - '+r.note:''}`, time: r.timeStr }) });
   
-  // Process nested arrays for Goals and Savings
   goals.forEach(g => { 
     (g.history||[]).forEach(h => {
        if(h.isoDate === dateVal) results.push({ type: 'Goal Fund', text: `${g.name}: +${h.amount}`, time: h.timeStr });
@@ -1323,7 +1512,7 @@ function applyLanguage(){
   document.querySelectorAll('.lang-ph').forEach(e=>{ if(TRANSLATIONS[currentLang][e.dataset.key]) e.placeholder = TRANSLATIONS[currentLang][e.dataset.key]; });
   document.getElementById('lang-btn-text').textContent = currentLang==='en'?'English':'বাংলা';
   document.getElementById('home-date').textContent = new Date().toLocaleDateString(currentLang==='bn'?'bn-BD':'en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  renderHome(); renderTxnCategories(); renderRecovery(); renderStudies(); renderDebts(); filterByDate();
+  renderHome(); renderTxnCategories(); renderRecovery(); renderStudies(); renderDebts(); filterByDate(); renderLinks(); renderVault();
 }
 window.toggleTheme = function(){ const n=!document.documentElement.classList.contains('light'); localStorage.setItem('nexus-theme', n?'light':'dark'); applyTheme(n); };
 function applyTheme(light){ document.documentElement.classList.toggle('dark',!light); document.documentElement.classList.toggle('light',light); document.getElementById('theme-thumb').style.transform = light?'translateX(20px)':'translateX(0)'; document.getElementById('theme-switch').style.background = light?'#10ff9c':'rgba(120,140,135,0.25)'; }
