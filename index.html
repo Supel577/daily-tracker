@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Nexus — Personal Command Center</title>
+<title>Nexus — Personal Knowledge Command Center</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Tailwind Warn Silencer (Mutes OneCompiler/Console warning) -->
+<!-- Tailwind Warn Silencer -->
 <script>
   const originalWarn = console.warn;
   console.warn = function(...args) {
-    if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-      return;
-    }
+    if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
     originalWarn.apply(console, args);
   };
 </script>
@@ -27,23 +25,10 @@
     theme: {
       extend: {
         colors: {
-          mint: {
-            DEFAULT: '#10ff9c',
-            50: '#e9fff5',
-            100: '#c9ffe6',
-            400: '#3dffb0',
-            500: '#10ff9c',
-            600: '#0bd684',
-            700: '#08a866'
-          }
+          mint: { DEFAULT: '#10ff9c', 50: '#e9fff5', 100: '#c9ffe6', 400: '#3dffb0', 500: '#10ff9c', 600: '#0bd684', 700: '#08a866' }
         },
-        fontFamily: {
-          sans: ['Manrope', 'Hind Siliguri', 'sans-serif']
-        },
-        boxShadow: {
-          glow: '0 0 24px rgba(16,255,156,0.25)',
-          card: '0 8px 32px rgba(0,0,0,0.28)'
-        }
+        fontFamily: { sans: ['Manrope', 'Hind Siliguri', 'sans-serif'] },
+        boxShadow: { glow: '0 0 24px rgba(16,255,156,0.25)', card: '0 8px 32px rgba(0,0,0,0.28)' }
       }
     }
   }
@@ -55,22 +40,15 @@
     --glass-fill: rgba(255,255,255,0.045);
     --glass-border: rgba(255,255,255,0.09);
     --text-1:#eef4f1; --text-2:#9aa8a4; --text-3:#5f6e6a;
-    --balance-bg: linear-gradient(155deg,#0d1a15,#0a1f18 55%,#08150f);
-    --balance-text-title: #7de8c0;
-    --balance-text-main: #10ff9c;
-    --balance-border: rgba(16,255,156,0.18);
   }
   html.light{
     --bg-0:#eef4f0; --bg-1:#f5f8f6; --bg-2:#ffffff;
     --glass-fill: rgba(255,255,255,0.55);
     --glass-border: rgba(16,60,45,0.08);
     --text-1:#0d1512; --text-2:#4b5a55; --text-3:#8b9793;
-    --balance-bg: linear-gradient(155deg,#e2fcf2,#d3f7ea 55%,#c4f3e2);
-    --balance-text-title: #064e3b;
-    --balance-text-main: #047857;
-    --balance-border: rgba(16,255,156,0.45);
   }
-  *{ -webkit-tap-highlight-color: transparent; }
+  *{ -webkit-tap-highlight-color: transparent; scrollbar-width:none; -ms-overflow-style:none; }
+  ::-webkit-scrollbar{ display:none; }
   html,body{ height:100%; overscroll-behavior-y: none; }
   body{
     background: radial-gradient(1200px 800px at 80% -10%, rgba(16,255,156,0.08), transparent 60%),
@@ -80,8 +58,6 @@
     font-family:'Manrope','Hind Siliguri',sans-serif;
     transition: background .4s ease, color .4s ease;
   }
-  ::-webkit-scrollbar{ display:none; }
-  *{ scrollbar-width:none; -ms-overflow-style:none; }
 
   .glass{
     background: var(--glass-fill);
@@ -95,15 +71,11 @@
     backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
   }
-  .press{ transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; }
+  .press{ transition: transform .12s ease, opacity .12s ease; }
   .press:active{ transform: scale(0.96); }
 
   .app-shell{ max-width:480px; margin:0 auto; position:relative; min-height:100vh; }
-
-  .app-view {
-    display:none;
-    animation: viewIn .32s cubic-bezier(.2,.8,.2,1);
-  }
+  .app-view { display:none; animation: viewIn .32s cubic-bezier(.2,.8,.2,1); }
   .app-view.active{ display:block; }
   
   @keyframes viewIn{
@@ -115,594 +87,438 @@
     position:fixed; left:50%; transform:translateX(-50%);
     bottom: max(14px, env(safe-area-inset-bottom));
     width: calc(100% - 32px); max-width: 448px;
-    border-radius: 26px;
-    z-index:50;
+    border-radius: 26px; z-index:50;
     box-shadow: 0 12px 40px rgba(0,0,0,0.35);
   }
   .nav-btn{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; flex:1; padding:10px 0; border-radius:18px; transition:.25s ease; }
   .nav-btn i{ font-size:18px; color:var(--text-3); transition:.25s ease; }
-  .nav-btn span{ font-size:10.5px; font-weight:600; color:var(--text-3); transition:.25s ease; letter-spacing:.2px; }
+  .nav-btn span{ font-size:10.5px; font-weight:600; color:var(--text-3); transition:.25s ease; }
   .nav-btn.active{ background: rgba(16,255,156,0.1); }
   .nav-btn.active i, .nav-btn.active span{ color:#10ff9c; }
-  .nav-btn.active i{ transform: translateY(-1px) scale(1.05); }
 
-  .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); z-index:90; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(5px); z-index:90; opacity:0; pointer-events:none; transition:opacity .25s ease; }
   .modal-backdrop.show{ opacity:1; pointer-events:auto; }
-  .sheet{ position:fixed; left:50%; bottom:0; transform:translate(-50%,100%); width:100%; max-width:480px; z-index:91; transition: transform .35s cubic-bezier(.2,.8,.2,1); max-height:88vh; overflow-y:auto; }
+  .sheet{ position:fixed; left:50%; bottom:0; transform:translate(-50%,100%); width:100%; max-width:480px; z-index:91; transition: transform .35s cubic-bezier(.2,.8,.2,1); max-height:90vh; overflow-y:auto; }
   .sheet.show{ transform:translate(-50%,0); }
 
   .field{ background: rgba(120,140,135,0.08); border:1px solid var(--glass-border); color: var(--text-1); }
   .field:focus{ outline:none; border-color:#10ff9c; box-shadow:0 0 0 3px rgba(16,255,156,0.12); }
 
-  .cat-pill{ transition:.2s ease; }
-  .cat-pill.selected{ background:#10ff9c; color:#04140d; box-shadow:0 4px 16px rgba(16,255,156,0.35); }
-
-  .toggle-track{ transition:.25s ease; }
-  .toggle-thumb{ transition:.25s cubic-bezier(.3,1,.4,1); }
-
-  .empty-state{ opacity:.6; }
-  .streak-flame{ animation: flame 1.6s ease-in-out infinite; }
-  @keyframes flame{ 0%,100%{ transform:scale(1) rotate(0deg);} 50%{ transform:scale(1.08) rotate(-3deg);} }
-
   #toast-wrap{ position:fixed; top: max(16px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center; }
   .toast{ animation: toastIn .3s ease; }
   @keyframes toastIn{ from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);} }
-  
-  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
-  html.light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 </style>
 </head>
 <body class="text-[15px]">
 
-<!-- ============ LOADING ============ -->
+<!-- LOADING SCREEN -->
 <div id="loading-screen" class="fixed inset-0 z-[300] flex flex-col items-center justify-center gap-4" style="background:var(--bg-0)">
-  <div class="w-16 h-16 rounded-2xl grid place-items-center glow-box" style="background:linear-gradient(160deg,#10ff9c,#0bd684); box-shadow:0 0 40px rgba(16,255,156,0.4)">
-    <i class="fa-solid fa-bolt text-2xl" style="color:#04140d"></i>
+  <div class="w-16 h-16 rounded-2xl grid place-items-center" style="background:linear-gradient(160deg,#10ff9c,#0bd684); box-shadow:0 0 40px rgba(16,255,156,0.4)">
+    <i class="fa-solid fa-bolt text-2xl text-gray-950"></i>
   </div>
-  <div class="text-sm tracking-widest uppercase" style="color:var(--text-3)">Nexus</div>
-  <div class="w-32 h-1 rounded-full overflow-hidden" style="background:rgba(120,140,135,0.15)">
-    <div class="h-full w-1/2 rounded-full" style="background:#10ff9c;animation:loadbar 1s ease-in-out infinite alternate"></div>
+  <div class="text-sm tracking-widest uppercase font-bold text-mint-500">Nexus Command Center</div>
+  <div class="w-32 h-1 rounded-full overflow-hidden bg-white/10">
+    <div class="h-full w-1/2 rounded-full bg-mint-500 animate-pulse"></div>
   </div>
-  <style>@keyframes loadbar{from{margin-left:0%}to{margin-left:50%}}</style>
 </div>
 
-<!-- ============ LOGIN ============ -->
+<!-- LOGIN SCREEN -->
 <div id="login-screen" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-6" style="background:radial-gradient(1100px 700px at 50% -10%, rgba(16,255,156,0.12), transparent 60%), var(--bg-0)">
   <div class="w-full max-w-sm">
     <div class="flex flex-col items-center mb-8">
       <div class="w-16 h-16 rounded-2xl grid place-items-center mb-4" style="background:linear-gradient(160deg,#10ff9c,#0bd684); box-shadow:0 8px 30px rgba(16,255,156,0.35)">
-        <i class="fa-solid fa-bolt text-2xl" style="color:#04140d"></i>
+        <i class="fa-solid fa-shield-halved text-2xl text-gray-950"></i>
       </div>
-      <h1 class="text-2xl font-extrabold tracking-tight">Nexus</h1>
-      <p class="text-sm mt-1 lang-str" data-key="subWelcome" style="color:var(--text-2)">Your personal command center</p>
+      <h1 class="text-2xl font-extrabold tracking-tight">Nexus Center</h1>
+      <p class="text-xs mt-1" style="color:var(--text-2)">Protected Private Knowledge Base</p>
     </div>
 
     <div class="glass-strong rounded-3xl p-6 shadow-card">
-      <h2 class="text-lg font-bold mb-1 lang-str" data-key="welcome">Welcome back</h2>
-      <p class="text-xs mb-5 lang-str" data-key="subWelcome" style="color:var(--text-2)">Sign in with your private account</p>
+      <h2 class="text-lg font-bold mb-1">Welcome back</h2>
+      <p class="text-xs mb-5" style="color:var(--text-2)">Sign in with your private owner account</p>
 
       <form id="login-form" class="space-y-3">
         <div>
-          <label class="text-[11px] font-semibold uppercase tracking-wide lang-str" data-key="email" style="color:var(--text-3)">Email</label>
+          <label class="text-[11px] font-semibold uppercase tracking-wide" style="color:var(--text-3)">Email</label>
           <input id="login-email" type="email" required autocomplete="email" placeholder="you@email.com" class="field w-full mt-1.5 rounded-2xl px-4 py-3.5 text-sm" />
         </div>
         <div>
-          <label class="text-[11px] font-semibold uppercase tracking-wide lang-str" data-key="password" style="color:var(--text-3)">Password</label>
+          <label class="text-[11px] font-semibold uppercase tracking-wide" style="color:var(--text-3)">Password</label>
           <div class="relative">
             <input id="login-password" type="password" required autocomplete="current-password" placeholder="••••••••" class="field w-full mt-1.5 rounded-2xl px-4 py-3.5 text-sm pr-12" />
-            <button type="button" id="toggle-pw" class="absolute right-3 top-1/2 -translate-y-1/2 mt-[3px] text-sm" style="color:var(--text-3)"><i class="fa-solid fa-eye"></i></button>
           </div>
         </div>
         <div id="login-error" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5"></div>
 
-        <button type="submit" id="login-btn" class="press w-full mt-2 rounded-2xl py-3.5 font-bold text-sm flex items-center justify-center gap-2" style="background:linear-gradient(160deg,#10ff9c,#0bd684); color:#04140d; box-shadow:0 8px 24px rgba(16,255,156,0.3)">
-          <span id="login-btn-text" class="lang-str" data-key="signIn">Sign In</span>
-          <i id="login-spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+        <button type="submit" id="login-btn" class="press w-full mt-2 rounded-2xl py-3.5 font-bold text-sm flex items-center justify-center gap-2" style="background:linear-gradient(160deg,#10ff9c,#0bd684); color:#04140d">
+          <span id="login-btn-text">Sign In</span>
         </button>
       </form>
     </div>
   </div>
 </div>
 
-<!-- ============ APP ============ -->
+<!-- MAIN APP APP ROOT -->
 <div id="app-root" class="app-shell hidden">
-
   <div id="view-stack" class="pb-32">
 
-    <!-- ============ MAIN VIEWS ============ -->
-    
-    <!-- === HOME === -->
+    <!-- === VIEW: HOME === -->
     <section id="view-home" class="app-view active px-5 pt-6">
       <div class="flex items-center justify-between mb-5">
         <div>
           <p class="text-xs" style="color:var(--text-3)" id="home-date"></p>
-          <h1 class="text-xl font-extrabold mt-0.5"><span class="lang-str" data-key="hi">Hi, Supel</span> <span>👋</span></h1>
+          <h1 class="text-xl font-extrabold mt-0.5">Hi, Supel 👋</h1>
         </div>
         <div class="w-11 h-11 rounded-2xl glass grid place-items-center press" onclick="switchTab('settings')">
           <i class="fa-solid fa-user text-sm" style="color:var(--text-2)"></i>
         </div>
       </div>
 
-      <div class="glass rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl streak-flame">🔥</span>
-          <div>
-            <p class="text-sm font-bold" id="streak-count">0 day streak</p>
-            <p class="text-[11px] lang-str" data-key="streakSub" style="color:var(--text-3)">Keep opening Nexus daily</p>
-          </div>
+      <!-- App Age & Active Days Counter -->
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="glass-strong rounded-3xl p-4 text-center relative overflow-hidden border border-mint-500/20">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-mint-400">App Age (Days)</p>
+          <h2 class="text-3xl font-extrabold my-1 text-mint-500" id="app-age-days">0</h2>
+          <p class="text-[10px]" style="color:var(--text-3)">Since Creation</p>
         </div>
-        <i class="fa-solid fa-chart-line text-xs" style="color:var(--text-3)"></i>
-      </div>
-
-      <div class="rounded-3xl p-5 mb-6 relative overflow-hidden transition-all duration-300" style="background:var(--balance-bg); border:1px solid var(--balance-border)">
-        <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full" style="background:radial-gradient(circle, rgba(16,255,156,0.18), transparent 70%)"></div>
-        <p class="text-[11px] uppercase tracking-wide font-semibold" style="color:var(--balance-text-title)" id="total-balance-label">Total Balance</p>
-        <h2 class="text-3xl font-extrabold mt-1 mb-4" id="total-balance" style="color:var(--balance-text-main)">৳0</h2>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-2xl px-3.5 py-3 glass">
-            <div class="flex items-center gap-2 mb-1">
-              <div class="w-6 h-6 rounded-lg grid place-items-center bg-emerald-500/15"><i class="fa-solid fa-arrow-down text-[10px]" style="color:#10ff9c"></i></div>
-              <span class="text-[11px] font-semibold lang-str" data-key="income" style="color:var(--text-2)">Income</span>
-            </div>
-            <p class="font-bold text-sm" id="total-income">৳0</p>
-          </div>
-          <div class="rounded-2xl px-3.5 py-3 glass">
-            <div class="flex items-center gap-2 mb-1">
-              <div class="w-6 h-6 rounded-lg grid place-items-center bg-red-500/15"><i class="fa-solid fa-arrow-up text-[10px] text-red-400"></i></div>
-              <span class="text-[11px] font-semibold lang-str" data-key="expense" style="color:var(--text-2)">Expense</span>
-            </div>
-            <p class="font-bold text-sm" id="total-expense">৳0</p>
-          </div>
+        <div class="glass rounded-3xl p-4 text-center border border-blue-500/20">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-blue-400">Active Visits</p>
+          <h2 class="text-3xl font-extrabold my-1 text-blue-400" id="app-active-days">0</h2>
+          <p class="text-[10px]" style="color:var(--text-3)">Days Used</p>
         </div>
       </div>
 
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="font-bold text-sm lang-str" data-key="recentTxns">Recent Transactions</h3>
-        <span class="text-[11px]" style="color:var(--text-3)" id="txn-count">0 total</span>
-      </div>
-      <div id="txn-list" class="space-y-2.5"></div>
-      <div id="txn-empty" class="hidden glass rounded-2xl p-8 text-center empty-state">
-        <i class="fa-solid fa-receipt text-2xl mb-2 opacity-40"></i>
-        <p class="text-xs lang-str" data-key="noTxnsYet" style="color:var(--text-3)">No transactions yet.</p>
-      </div>
-    </section>
-
-    <!-- === RECOVERY (আসক্তি মুক্তি) === -->
-    <section id="view-recovery" class="app-view px-5 pt-6">
-      <h1 class="text-xl font-extrabold mb-4 lang-str" data-key="recoveryTitle">Addiction Recovery</h1>
-      
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="glass-strong rounded-3xl p-5 text-center col-span-2 relative overflow-hidden">
-          <p class="text-xs font-semibold mb-1 uppercase tracking-wider lang-str" data-key="currentStreak" style="color:var(--text-3)">Current Streak</p>
-          <h2 class="text-5xl font-extrabold mb-1" style="color:#10ff9c" id="nofap-streak">0</h2>
-          <p class="text-[11px] font-semibold lang-str" data-key="daysFree" style="color:var(--text-2)">Days Free</p>
-        </div>
-        <div class="glass rounded-2xl p-4 text-center">
-          <p class="text-[10px] font-bold uppercase mb-1" style="color:var(--text-3)">Longest Streak</p>
-          <h3 class="text-xl font-bold text-mint-400" id="nofap-longest">0</h3>
-        </div>
-        <div class="glass rounded-2xl p-4 text-center">
-          <p class="text-[10px] font-bold uppercase mb-1" style="color:var(--text-3)">Total Relapses</p>
-          <h3 class="text-xl font-bold text-red-400" id="nofap-total-relapses">0</h3>
-        </div>
-      </div>
-
-      <div class="glass rounded-2xl p-4 mb-5 border-l-4 border-l-cyan-500">
+      <!-- On This Day / Memory Flashback Widget -->
+      <div class="glass-strong rounded-2xl p-4 mb-5 border-l-4 border-l-amber-400">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-sm font-bold text-cyan-400 lang-str" data-key="recoveryTipsTitle">My Motivation / Rules</p>
-          <button onclick="saveRecoveryMotivation()" class="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded press">Save</button>
+          <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Memory Flashback (On This Day)</span>
         </div>
-        <textarea id="recovery-motivation" rows="3" placeholder="Write how to get out of it, your rules, why you want to quit..." class="field w-full rounded-xl p-3 text-xs resize-none lang-ph" data-key="recoveryTipsDesc"></textarea>
+        <div id="flashback-content" class="text-xs">
+          <p style="color:var(--text-3)">Checking memories from past days...</p>
+        </div>
       </div>
 
-      <button onclick="openModal('relapse-modal')" class="press w-full rounded-2xl py-3.5 font-bold text-sm mb-6 lang-str" data-key="logRelapse" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#f87171">
-        I Relapsed (Log entry)
-      </button>
+      <!-- Quick Bookmarks Shortcuts -->
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm">📌 Quick Shortcuts</h3>
+        <button onclick="switchTab('bookmarks')" class="text-xs text-mint-500 font-semibold">View All</button>
+      </div>
+      <div id="home-pinned-links" class="flex flex-wrap gap-2 mb-6"></div>
 
-      <h3 class="font-bold text-sm mb-3 lang-str" data-key="relapseHistory">Relapse History</h3>
-      <div id="relapse-list" class="space-y-3"></div>
+      <!-- Overview Stats -->
+      <h3 class="font-bold text-sm mb-3">Overview Knowledge Base</h3>
+      <div class="grid grid-cols-3 gap-2 mb-6">
+        <div class="glass p-3 rounded-2xl text-center">
+          <i class="fa-solid fa-bookmark text-mint-400 mb-1"></i>
+          <p class="text-xs font-bold" id="stat-links-count">0</p>
+          <p class="text-[9px]" style="color:var(--text-3)">Bookmarks</p>
+        </div>
+        <div class="glass p-3 rounded-2xl text-center">
+          <i class="fa-solid fa-film text-purple-400 mb-1"></i>
+          <p class="text-xs font-bold" id="stat-watch-count">0</p>
+          <p class="text-[9px]" style="color:var(--text-3)">Watchlist</p>
+        </div>
+        <div class="glass p-3 rounded-2xl text-center">
+          <i class="fa-solid fa-shield text-red-400 mb-1"></i>
+          <p class="text-xs font-bold" id="stat-vault-count">0</p>
+          <p class="text-[9px]" style="color:var(--text-3)">Secret Notes</p>
+        </div>
+      </div>
     </section>
 
-    <!-- === TOOLS === -->
-    <section id="view-tools" class="app-view px-5 pt-6">
-      <h1 class="text-xl font-extrabold mb-4 lang-str" data-key="tools">Tools</h1>
+    <!-- === VIEW: BOOKMARKS === -->
+    <section id="view-bookmarks" class="app-view px-5 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-xl font-extrabold">Bookmarks & Links</h1>
+        <button onclick="openModal('link-modal')" class="press px-3.5 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950 flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add Link</button>
+      </div>
       
       <div class="relative mb-4">
         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text-3)"></i>
-        <input id="global-search" oninput="handleGlobalSearch()" type="text" placeholder="Search ideas, links..." class="field w-full rounded-2xl pl-10 pr-4 py-3 text-sm lang-ph" data-key="searchPlaceholder" />
+        <input id="search-links" oninput="renderLinks()" type="text" placeholder="Search bookmarks..." class="field w-full rounded-2xl pl-10 pr-4 py-3 text-sm" />
       </div>
 
-      <div class="glass rounded-2xl p-4 mb-5 border border-[#10ff9c]/20">
-        <p class="text-xs font-bold mb-2 lang-str" data-key="filterDateTitle">Filter Activity by Date</p>
+      <div id="links-list" class="space-y-2.5"></div>
+    </section>
+
+    <!-- === VIEW: SECURE VAULT (NOTEPAD APP) === -->
+    <section id="view-vault" class="app-view px-5 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-xl font-extrabold flex items-center gap-2"><i class="fa-solid fa-lock text-red-400"></i> Secure Notepad</h1>
+        <button id="vault-add-btn" onclick="openModal('vault-note-modal')" class="press px-3.5 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950 hidden"><i class="fa-solid fa-plus"></i> New Note</button>
+      </div>
+
+      <!-- Lock Screen -->
+      <div id="vault-lock-screen" class="glass-strong rounded-3xl p-6 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-red-500/10 grid place-items-center text-red-400 text-2xl">
+          <i class="fa-solid fa-vault"></i>
+        </div>
+        <h2 class="font-bold text-sm" id="vault-lock-msg">Enter Vault Security PIN</h2>
+        <input id="vault-pin-input" type="password" maxlength="4" placeholder="••••" class="field text-center tracking-widest text-2xl font-bold w-36 rounded-xl py-2.5" />
+        <button onclick="checkVaultPin()" class="press w-full rounded-xl py-3 font-bold text-sm bg-mint-500 text-gray-950">Unlock Vault</button>
+      </div>
+
+      <!-- Unlocked Full Notepad App -->
+      <div id="vault-unlocked-screen" class="hidden space-y-3">
+        <div class="flex items-center gap-2 mb-2">
+          <input id="search-vault" oninput="renderVaultNotes()" type="text" placeholder="Search secret notes..." class="field flex-1 rounded-xl px-3.5 py-2 text-xs" />
+          <button onclick="lockVault()" class="press px-3 py-2 rounded-xl text-xs font-bold bg-white/10 text-red-400">Lock</button>
+        </div>
+        <div id="vault-notes-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- === VIEW: TOOLS === -->
+    <section id="view-tools" class="app-view px-5 pt-6">
+      <h1 class="text-xl font-extrabold mb-4">Command Tools</h1>
+
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <!-- Doc & Drive Hub -->
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-dochub')">
+          <div class="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center text-blue-400"><i class="fa-solid fa-folder-closed"></i></div>
+          <span class="text-xs font-bold">Doc & Drive Hub</span>
+        </button>
+
+        <!-- Code & Prompt Vault -->
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-snippets')">
+          <div class="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center text-purple-400"><i class="fa-solid fa-code"></i></div>
+          <span class="text-xs font-bold">Code & Prompts</span>
+        </button>
+
+        <!-- Watchlist -->
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-watch')">
+          <div class="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center text-red-400"><i class="fa-solid fa-film"></i></div>
+          <span class="text-xs font-bold">Watchlist & Books</span>
+        </button>
+
+        <!-- Idea Dump -->
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-ideas')">
+          <div class="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center text-amber-400"><i class="fa-solid fa-lightbulb"></i></div>
+          <span class="text-xs font-bold">Idea Dump</span>
+        </button>
+
+        <!-- Journal -->
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press col-span-2" onclick="openSubView('view-journal')">
+          <div class="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-book-open"></i></div>
+          <span class="text-xs font-bold">Personal Journal</span>
+        </button>
+      </div>
+
+      <!-- Filter Activity by Date -->
+      <div class="glass rounded-2xl p-4 border border-mint-500/20">
+        <p class="text-xs font-bold mb-2">Filter Activity by Date</p>
         <input type="date" id="filter-date" onchange="filterByDate()" class="field w-full rounded-xl px-3.5 py-2.5 text-sm" />
         <div id="filter-results" class="mt-3 space-y-2 hidden"></div>
       </div>
-
-      <div id="search-results" class="hidden space-y-2.5 mb-4"></div>
-      
-      <div id="tools-grid" class="grid grid-cols-2 gap-3">
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-study')">
-          <div class="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center text-blue-400"><i class="fa-solid fa-book-open"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="studyTracker">Study Tracker</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-micro')">
-          <div class="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-briefcase"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="microJobs">Micro-Jobs</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-goals')">
-          <div class="w-10 h-10 rounded-full bg-yellow-500/15 flex items-center justify-center text-yellow-400"><i class="fa-solid fa-bullseye"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="goalProgress">Goals</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-savings')">
-          <div class="w-10 h-10 rounded-full bg-green-500/15 flex items-center justify-center text-green-400"><i class="fa-solid fa-piggy-bank"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="savingsGoals">Savings</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-debts')">
-          <div class="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center text-purple-400"><i class="fa-solid fa-handshake"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="debtTracker">Debts</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-ideas')">
-          <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center text-orange-400"><i class="fa-solid fa-lightbulb"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="ideaDump">Idea Dump</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-watch')">
-          <div class="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center text-red-400"><i class="fa-solid fa-clapperboard"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="watchList">Watchlist</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-links')">
-          <div class="w-10 h-10 rounded-full bg-cyan-500/15 flex items-center justify-center text-cyan-400"><i class="fa-solid fa-link"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="bookmarkSaver">Bookmarks</span>
-        </button>
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press col-span-2" onclick="openSubView('view-vault')">
-          <div class="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center text-red-400"><i class="fa-solid fa-vault"></i></div>
-          <span class="text-[11px] font-bold lang-str" data-key="vaultTitle">Secure Vault</span>
-        </button>
-      </div>
     </section>
 
-    <!-- === JOURNAL === -->
-    <section id="view-journal" class="app-view px-5 pt-6">
-      <h1 class="text-xl font-extrabold mb-4 lang-str" data-key="journal">Journal</h1>
-      <div class="glass-strong rounded-3xl p-4 mb-5">
-        <textarea id="journal-input" rows="5" placeholder="What's on your mind today?" class="field w-full rounded-2xl p-4 text-sm resize-none lang-ph" data-key="journalPlaceholder"></textarea>
-        <button onclick="saveJournal()" class="press w-full mt-3 rounded-2xl py-3 font-bold text-sm lang-str" data-key="saveEntry" style="background:linear-gradient(160deg,#10ff9c,#0bd684); color:#04140d">Save Entry</button>
-      </div>
-      <div id="journal-list" class="space-y-3"></div>
-      <div id="journal-empty" class="hidden glass rounded-2xl p-8 text-center empty-state">
-        <i class="fa-solid fa-feather text-2xl mb-2 opacity-40"></i>
-        <p class="text-xs lang-str" data-key="journalEmpty" style="color:var(--text-3)">Your journal is empty.</p>
-      </div>
-    </section>
-
-    <!-- === SETTINGS === -->
+    <!-- === VIEW: SETTINGS === -->
     <section id="view-settings" class="app-view px-5 pt-6">
-      <h1 class="text-xl font-extrabold mb-4 lang-str" data-key="settings">Settings</h1>
+      <h1 class="text-xl font-extrabold mb-4">Settings</h1>
 
       <div class="glass-strong rounded-3xl p-5 mb-4 flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(160deg,#10ff9c,#0bd684)">
-          <i class="fa-solid fa-user text-xl" style="color:#04140d"></i>
+          <i class="fa-solid fa-user-shield text-xl text-gray-950"></i>
         </div>
         <div class="min-w-0">
           <p class="font-bold text-sm truncate" id="settings-email">—</p>
-          <p class="text-[11px] lang-str" data-key="ownerAccount" style="color:var(--text-3)">Nexus Owner Account</p>
+          <p class="text-[11px]" style="color:var(--text-3)">Nexus Primary Account</p>
         </div>
       </div>
 
       <div class="glass rounded-2xl px-4 py-3.5 mb-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <i class="fa-solid fa-circle-half-stroke text-sm" style="color:var(--text-2)"></i>
-          <span class="text-sm font-semibold lang-str" data-key="lightMode">Light Mode</span>
+          <span class="text-sm font-semibold">Light Mode</span>
         </div>
-        <button id="theme-switch" onclick="toggleTheme()" class="toggle-track w-12 h-7 rounded-full relative" style="background:rgba(120,140,135,0.25)">
-          <span id="theme-thumb" class="toggle-thumb absolute top-1 left-1 w-5 h-5 rounded-full bg-white"></span>
-        </button>
-      </div>
-
-      <div class="glass rounded-2xl px-4 py-3.5 mb-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i class="fa-solid fa-language text-sm" style="color:var(--text-2)"></i>
-          <span class="text-sm font-semibold lang-str" data-key="languageLabel">Language / ভাষা</span>
-        </div>
-        <button onclick="toggleLanguage()" class="press px-3.5 py-1.5 rounded-xl text-xs font-bold" style="background:#10ff9c; color:#04140d">
-          <span id="lang-btn-text">English</span>
+        <button id="theme-switch" onclick="toggleTheme()" class="w-12 h-7 rounded-full relative bg-white/20">
+          <span id="theme-thumb" class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all"></span>
         </button>
       </div>
 
       <button onclick="openSubView('view-trash', 'settings')" class="w-full glass rounded-2xl px-4 py-3.5 mb-4 flex items-center justify-between press">
         <div class="flex items-center gap-3 text-red-400">
           <i class="fa-solid fa-trash text-sm"></i>
-          <span class="text-sm font-bold lang-str" data-key="trashBin">Trash Bin</span>
+          <span class="text-sm font-bold">Trash Bin</span>
         </div>
         <i class="fa-solid fa-chevron-right text-xs" style="color:var(--text-3)"></i>
       </button>
 
       <div class="glass rounded-2xl p-4 mb-4 space-y-2.5">
-        <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 lang-str" data-key="dataMgmt" style="color:var(--text-3)">Data Management</p>
+        <p class="text-[11px] font-semibold uppercase tracking-wide mb-1" style="color:var(--text-3)">Data Management</p>
         <button onclick="exportBackup()" class="press w-full flex items-center justify-between rounded-xl px-3.5 py-3 glass">
-          <div class="flex items-center gap-3"><i class="fa-solid fa-download text-sm" style="color:#10ff9c"></i><span class="text-sm font-semibold lang-str" data-key="exportBackup">Export Backup</span></div>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-download text-sm text-mint-400"></i><span class="text-sm font-semibold">Export Backup</span></div>
           <i class="fa-solid fa-chevron-right text-xs" style="color:var(--text-3)"></i>
         </button>
         <label class="press w-full flex items-center justify-between rounded-xl px-3.5 py-3 glass cursor-pointer">
-          <div class="flex items-center gap-3"><i class="fa-solid fa-upload text-sm" style="color:#10ff9c"></i><span class="text-sm font-semibold lang-str" data-key="importBackup">Import Backup</span></div>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-upload text-sm text-mint-400"></i><span class="text-sm font-semibold">Import Backup</span></div>
           <i class="fa-solid fa-chevron-right text-xs" style="color:var(--text-3)"></i>
           <input type="file" id="import-file" accept="application/json" class="hidden" onchange="importBackup(event)"/>
         </label>
       </div>
 
-      <button onclick="handleLogout()" class="press w-full rounded-2xl py-3.5 font-bold text-sm text-red-400" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2)">
-        <i class="fa-solid fa-right-from-bracket mr-2"></i><span class="lang-str" data-key="logout">Logout</span>
+      <button onclick="handleLogout()" class="press w-full rounded-2xl py-3.5 font-bold text-sm text-red-400 bg-red-500/10 border border-red-500/20">
+        <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
       </button>
-      <p class="text-center text-[11px] mt-6 mb-2" style="color:var(--text-3)">Nexus v2.2 · Private build</p>
     </section>
 
-    <!-- ============================================== -->
-    <!-- ============== SUB-VIEWS ===================== -->
-    <!-- ============================================== -->
+    <!-- ================= SUB-VIEWS ================= -->
 
-    <!-- SUB: Study Tracker -->
-    <section id="view-study" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="studyTracker">Study Tracker</h1>
-      </div>
-      <div class="glass-strong rounded-3xl p-5 mb-5">
-        <input id="study-subject" type="text" placeholder="Subject name..." class="field w-full rounded-xl px-3.5 py-2.5 text-sm mb-3 lang-ph" data-key="subjectName"/>
-        <div class="flex items-center gap-3 mb-3">
-          <input id="study-hours" type="number" step="0.5" placeholder="Hours" class="field flex-1 rounded-xl px-3.5 py-2.5 text-sm lang-ph" data-key="studyHours"/>
-          <label class="flex items-center gap-2 text-xs font-semibold cursor-pointer">
-            <input type="checkbox" id="study-not-done" onchange="toggleStudyReason(this.checked)" class="w-4 h-4 rounded text-mint-500 focus:ring-mint-500" style="accent-color:#10ff9c">
-            <span class="lang-str" data-key="didNotStudy">Didn't study</span>
-          </label>
+    <!-- SUB: Doc & Drive Hub -->
+    <section id="view-dochub" class="app-view px-5 pt-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
+          <h1 class="text-xl font-extrabold">Doc & Drive Hub</h1>
         </div>
-        <input id="study-reason" type="text" placeholder="Why didn't you study?" class="field w-full rounded-xl px-3.5 py-2.5 text-sm mb-3 hidden lang-ph" data-key="reasonNotStudied"/>
-        <button onclick="addStudyLog()" class="press w-full rounded-xl py-3 font-bold text-sm lang-str" data-key="saveLog" style="background:#10ff9c; color:#04140d">Save Log</button>
+        <button onclick="openModal('dochub-modal')" class="press px-3 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950">+ Add Doc</button>
       </div>
-      <div id="study-list" class="space-y-3"></div>
+      <div id="dochub-list" class="space-y-2.5"></div>
     </section>
 
-    <!-- SUB: Micro Jobs -->
-    <section id="view-micro" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="microJobs">Micro-Jobs</h1>
-      </div>
-      <div class="glass rounded-2xl p-4 mb-4">
-        <p class="text-xs font-bold mb-2 lang-str" data-key="addNewSite">Add New Site (Folder)</p>
-        <div class="flex gap-2">
-          <input id="micro-site-name" type="text" placeholder="Site name..." class="field flex-1 rounded-xl px-3.5 py-2 text-sm lang-ph" data-key="siteName"/>
-          <button onclick="addMicroSite()" class="press px-4 rounded-xl text-sm font-bold" style="background:rgba(16,255,156,0.15); color:#10ff9c">Add</button>
+    <!-- SUB: Code & Prompt Vault -->
+    <section id="view-snippets" class="app-view px-5 pt-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
+          <h1 class="text-xl font-extrabold">Code & Prompts</h1>
         </div>
+        <button onclick="openModal('snippet-modal')" class="press px-3 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950">+ Add Snippet</button>
       </div>
-      
-      <div class="glass-strong rounded-3xl p-5 mb-5 border border-[#10ff9c]/30">
-        <p class="text-xs font-bold mb-3 lang-str" data-key="logIncome">Log Income</p>
-        <select id="micro-site-select" class="field w-full rounded-xl px-3.5 py-2.5 text-sm mb-3 appearance-none"></select>
-        <input id="micro-amount" type="number" placeholder="Amount ৳" class="field w-full rounded-xl px-3.5 py-2.5 text-sm mb-3 lang-ph" data-key="amountLabel"/>
-        <button onclick="addMicroIncome()" class="press w-full rounded-xl py-3 font-bold text-sm lang-str" data-key="saveIncome" style="background:#10ff9c; color:#04140d">Save Income</button>
-      </div>
-      <h3 class="font-bold text-sm mb-3 lang-str" data-key="siteFolders">Site Folders</h3>
-      <div id="micro-list" class="space-y-3"></div>
+      <div id="snippets-list" class="space-y-3"></div>
     </section>
 
-    <!-- SUB: Goals -->
-    <section id="view-goals" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="goalProgress">Goals</h1>
-      </div>
-      <div class="glass rounded-2xl p-4 mb-5 space-y-3">
-        <input id="goal-name" type="text" placeholder="Goal name..." class="field w-full rounded-xl px-3.5 py-2 text-sm lang-ph" data-key="goalName"/>
-        <div class="flex gap-2">
-          <input id="goal-target" type="number" placeholder="Target ৳" class="field flex-1 rounded-xl px-3.5 py-2 text-sm lang-ph" data-key="savingTarget"/>
-          <button onclick="addFundItem('goals')" class="press px-4 rounded-xl text-sm font-bold" style="background:#10ff9c; color:#04140d">Add</button>
+    <!-- SUB: Watchlist -->
+    <section id="view-watch" class="app-view px-5 pt-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
+          <h1 class="text-xl font-extrabold">Watchlist & Books</h1>
         </div>
+        <button onclick="openModal('watch-modal')" class="press px-3 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950">+ Add Item</button>
       </div>
-      <div id="goals-list" class="space-y-3"></div>
-    </section>
-
-    <!-- SUB: Savings -->
-    <section id="view-savings" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="savingsGoals">Savings</h1>
-      </div>
-      <div class="glass rounded-2xl p-4 mb-5 space-y-3">
-        <input id="saving-name" type="text" placeholder="Fund name..." class="field w-full rounded-xl px-3.5 py-2 text-sm lang-ph" data-key="fundName"/>
-        <div class="flex gap-2">
-          <input id="saving-target" type="number" placeholder="Target ৳" class="field flex-1 rounded-xl px-3.5 py-2 text-sm lang-ph" data-key="savingTarget"/>
-          <button onclick="addFundItem('savings')" class="press px-4 rounded-xl text-sm font-bold" style="background:#10ff9c; color:#04140d">Add</button>
-        </div>
-      </div>
-      <div id="savings-list" class="space-y-3"></div>
-    </section>
-
-    <!-- SUB: Debts -->
-    <section id="view-debts" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="debtTracker">Debts Tracker</h1>
-      </div>
-      <div class="glass rounded-2xl p-4 mb-5">
-        <div class="flex gap-1.5 mb-3">
-          <button onclick="setDebtType('owe')" id="debt-type-owe" class="debt-type-btn flex-1 py-2 rounded-xl text-xs font-semibold lang-str" data-key="iOwe" style="background:#10ff9c;color:#04140d">I Owe</button>
-          <button onclick="setDebtType('owed')" id="debt-type-owed" class="debt-type-btn flex-1 py-2 rounded-xl text-xs font-semibold glass lang-str" data-key="owedToMe" style="color:var(--text-2)">Owed To Me</button>
-        </div>
-        <div class="flex gap-2 mb-3">
-          <input id="debt-person" type="text" placeholder="Person" class="field flex-1 rounded-xl px-3 py-2 text-sm lang-ph" data-key="person"/>
-          <input id="debt-amount" type="number" placeholder="৳" class="field w-24 rounded-xl px-3 py-2 text-sm"/>
-        </div>
-        <button onclick="addDebt()" class="press w-full rounded-xl py-2.5 text-sm font-semibold lang-str" data-key="addEntry" style="background:#10ff9c;color:#04140d">Add Entry</button>
-      </div>
-      <div id="debts-list" class="space-y-3"></div>
+      <div id="watch-list" class="space-y-2.5"></div>
     </section>
 
     <!-- SUB: Ideas -->
     <section id="view-ideas" class="app-view px-5 pt-6">
       <div class="flex items-center gap-3 mb-6">
         <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="ideaDump">Idea Dump</h1>
+        <h1 class="text-xl font-extrabold">Idea Dump</h1>
       </div>
       <div class="flex gap-2 mb-5">
-        <input id="idea-input" type="text" placeholder="Jot a quick idea..." class="field flex-1 rounded-xl px-3.5 py-2.5 text-sm lang-ph" data-key="jotIdea" onkeydown="if(event.key==='Enter')addIdea()"/>
-        <button onclick="addIdea()" class="press w-11 h-11 rounded-xl grid place-items-center shrink-0" style="background:#10ff9c"><i class="fa-solid fa-plus text-sm" style="color:#04140d"></i></button>
+        <input id="idea-input" type="text" placeholder="Jot down an idea..." class="field flex-1 rounded-xl px-3.5 py-2.5 text-sm" onkeydown="if(event.key==='Enter')addIdea()"/>
+        <button onclick="addIdea()" class="press w-11 h-11 rounded-xl grid place-items-center bg-mint-500 shrink-0 text-gray-950"><i class="fa-solid fa-plus"></i></button>
       </div>
       <div id="ideas-list" class="space-y-2"></div>
     </section>
 
-    <!-- SUB: Watchlist -->
-    <section id="view-watch" class="app-view px-5 pt-6">
+    <!-- SUB: Journal -->
+    <section id="view-journal" class="app-view px-5 pt-6">
       <div class="flex items-center gap-3 mb-6">
         <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="watchList">Watchlist</h1>
+        <h1 class="text-xl font-extrabold">Personal Journal</h1>
       </div>
-      <div class="flex gap-2 mb-5">
-        <input id="watch-input" type="text" placeholder="Book or movie name..." class="field flex-1 rounded-xl px-3.5 py-2.5 text-sm lang-ph" data-key="watchInput" onkeydown="if(event.key==='Enter')addWatch()"/>
-        <button onclick="addWatch()" class="press w-11 h-11 rounded-xl grid place-items-center shrink-0" style="background:#10ff9c"><i class="fa-solid fa-plus text-sm" style="color:#04140d"></i></button>
+      <div class="glass-strong rounded-3xl p-4 mb-5">
+        <textarea id="journal-input" rows="4" placeholder="What's on your mind today?" class="field w-full rounded-2xl p-4 text-sm resize-none"></textarea>
+        <button onclick="saveJournal()" class="press w-full mt-3 rounded-2xl py-3 font-bold text-sm bg-mint-500 text-gray-950">Save Entry</button>
       </div>
-      <div id="watch-list" class="space-y-2"></div>
-    </section>
-
-    <!-- SUB: Bookmarks -->
-    <section id="view-links" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="bookmarkSaver">Bookmarks</h1>
-      </div>
-      <div class="glass rounded-2xl p-4 mb-5 space-y-3">
-        <input id="link-title" type="text" placeholder="Title" class="field w-full rounded-xl px-3.5 py-2.5 text-sm lang-ph" data-key="title"/>
-        <div class="flex gap-2">
-          <input id="link-url" type="url" placeholder="https://..." class="field flex-1 rounded-xl px-3.5 py-2.5 text-sm"/>
-          <button onclick="addLink()" class="press w-11 h-11 rounded-xl grid place-items-center shrink-0" style="background:#10ff9c"><i class="fa-solid fa-plus text-sm" style="color:#04140d"></i></button>
-        </div>
-      </div>
-      <div id="links-list" class="space-y-2"></div>
-    </section>
-
-    <!-- SUB: Secure Vault (নতুন ৫ নম্বর) -->
-    <section id="view-vault" class="app-view px-5 pt-6">
-      <div class="flex items-center gap-3 mb-6">
-        <button onclick="closeSubView(); lockVault();" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold lang-str" data-key="vaultTitle">Secure Vault</h1>
-      </div>
-      
-      <!-- lock state -->
-      <div id="vault-lock-screen" class="glass-strong rounded-3xl p-6 text-center space-y-4">
-        <div class="w-16 h-16 mx-auto rounded-full bg-red-500/10 grid place-items-center text-red-400 text-2xl">
-          <i class="fa-solid fa-lock"></i>
-        </div>
-        <h2 class="font-bold text-sm" id="vault-lock-msg">Enter Vault PIN</h2>
-        <input id="vault-pin-input" type="password" maxlength="4" placeholder="••••" class="field text-center tracking-widest text-xl font-bold w-32 rounded-xl py-2" />
-        <button onclick="checkVaultPin()" class="press w-full rounded-xl py-3 font-bold text-sm bg-mint-500 text-gray-900">Unlock</button>
-      </div>
-
-      <!-- unlock state -->
-      <div id="vault-unlocked-screen" class="hidden space-y-4">
-        <div class="glass rounded-2xl p-4 border border-red-500/20">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-red-400 lang-str" data-key="secureData">Secret Notes</span>
-            <button onclick="saveVaultNote()" class="press text-[10px] bg-mint-500/20 text-mint-400 px-3 py-1.5 rounded font-bold">Save</button>
-          </div>
-          <textarea id="vault-textarea" rows="8" placeholder="Keep passwords, private notes safe here..." class="field w-full rounded-xl p-3 text-sm resize-none"></textarea>
-        </div>
-        <button onclick="lockVault()" class="press w-full rounded-xl py-2.5 text-xs font-bold bg-white/5 text-red-400">Lock Vault</button>
-      </div>
+      <div id="journal-list" class="space-y-3"></div>
     </section>
 
     <!-- SUB: Trash -->
     <section id="view-trash" class="app-view px-5 pt-6">
       <div class="flex items-center gap-3 mb-6">
         <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-        <h1 class="text-xl font-extrabold text-red-400 lang-str" data-key="trashBin">Trash Bin</h1>
+        <h1 class="text-xl font-extrabold text-red-400">Trash Bin</h1>
       </div>
       <div id="trash-list" class="space-y-3"></div>
     </section>
 
   </div>
 
-  <!-- Main Bottom Nav -->
+  <!-- Bottom Navigation -->
   <nav id="bottom-nav" class="bottom-nav glass-strong flex items-center px-2 py-2">
-    <button class="nav-btn active" id="tab-home" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span class="lang-str" data-key="homeTab">Home</span></button>
-    <button class="nav-btn" id="tab-recovery" onclick="switchTab('recovery')"><i class="fa-solid fa-shield-heart"></i><span class="lang-str" data-key="recoveryTab">Recovery</span></button>
-    <button class="nav-btn" id="tab-tools" onclick="switchTab('tools')"><i class="fa-solid fa-wrench"></i><span class="lang-str" data-key="toolsTab">Tools</span></button>
-    <button class="nav-btn" id="tab-journal" onclick="switchTab('journal')"><i class="fa-solid fa-book"></i><span class="lang-str" data-key="journalTab">Journal</span></button>
-    <button class="nav-btn" id="tab-settings" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i><span class="lang-str" data-key="settingsTab">Settings</span></button>
+    <button class="nav-btn active" id="tab-home" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+    <button class="nav-btn" id="tab-bookmarks" onclick="switchTab('bookmarks')"><i class="fa-solid fa-bookmark"></i><span>Bookmarks</span></button>
+    <button class="nav-btn" id="tab-vault" onclick="switchTab('vault')"><i class="fa-solid fa-vault"></i><span>Vault</span></button>
+    <button class="nav-btn" id="tab-tools" onclick="switchTab('tools')"><i class="fa-solid fa-cubes"></i><span>Tools</span></button>
+    <button class="nav-btn" id="tab-settings" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
   </nav>
 </div>
 
-<!-- fab for Home -->
-<button id="fab-add" onclick="openModal('txn-modal')" class="press fixed z-40 w-14 h-14 rounded-full grid place-items-center" style="right:20px; bottom:104px; background:linear-gradient(160deg,#10ff9c,#0bd684); box-shadow:0 10px 30px rgba(16,255,156,0.4)">
-  <i class="fa-solid fa-plus text-lg" style="color:#04140d"></i>
-</button>
+<!-- MODALS -->
 
-<!-- General Modal Backdrop -->
-<div id="modal-backdrop" class="modal-backdrop" onclick="closeAllModals()"></div>
-
-<!-- Txn Modal -->
-<div id="txn-modal" class="sheet glass-strong rounded-t-[28px] p-5 hidden-sheet">
-  <div class="w-10 h-1.5 rounded-full mx-auto mb-4" style="background:rgba(120,140,135,0.3)"></div>
-  <h3 class="font-bold text-lg mb-4 lang-str" data-key="addTransaction">Add Transaction</h3>
-  <div class="flex gap-2 mb-4">
-    <button onclick="setTxnType('expense')" id="txn-type-expense" class="flex-1 py-2.5 rounded-xl text-sm font-bold lang-str" data-key="expense" style="background:rgba(239,68,68,0.15); color:#f87171; border:1.5px solid #ef4444">Expense</button>
-    <button onclick="setTxnType('income')" id="txn-type-income" class="flex-1 py-2.5 rounded-xl text-sm font-bold glass lang-str" data-key="income" style="color:var(--text-2)">Income</button>
-  </div>
-  <label class="text-[11px] font-semibold uppercase tracking-wide lang-str" data-key="amountLabel" style="color:var(--text-3)">Amount</label>
-  <input id="txn-amount" type="number" placeholder="0.00" class="field w-full mt-1.5 mb-4 rounded-xl px-4 py-3 text-lg font-bold" />
-  <label class="text-[11px] font-semibold uppercase tracking-wide lang-str" data-key="categoryLabel" style="color:var(--text-3)">Category</label>
-  <div id="txn-categories" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
-  <label class="text-[11px] font-semibold uppercase tracking-wide lang-str" data-key="noteOptional" style="color:var(--text-3)">Note (optional)</label>
-  <input id="txn-note" type="text" placeholder="e.g. Lunch with friends" class="field w-full mt-1.5 mb-5 rounded-xl px-4 py-3 text-sm" />
-  <button onclick="submitTxn()" class="press w-full rounded-2xl py-3.5 font-bold text-sm mb-2 lang-str" data-key="saveTransaction" style="background:linear-gradient(160deg,#10ff9c,#0bd684); color:#04140d">Save Transaction</button>
-  <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str" data-key="cancel" style="color:var(--text-3)">Cancel</button>
+<!-- Modal: Add Link -->
+<div id="link-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-4">Add Bookmark</h3>
+  <input id="link-title" type="text" placeholder="Title..." class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <input id="link-url" type="url" placeholder="https://..." class="field w-full rounded-xl px-4 py-3 text-sm mb-5" />
+  <button onclick="addLink()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Link</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
 </div>
 
-<!-- Relapse Log Modal -->
-<div id="relapse-modal" class="sheet glass-strong rounded-t-[28px] p-5 hidden-sheet">
-  <div class="w-10 h-1.5 rounded-full mx-auto mb-4" style="background:rgba(120,140,135,0.3)"></div>
-  <h3 class="font-bold text-lg mb-2 text-red-400 lang-str" data-key="logRelapseTitle">Log Relapse</h3>
-  <p class="text-xs mb-4 lang-str" data-key="relapseDesc" style="color:var(--text-2)">Be honest. Why did this happen?</p>
-  
-  <select id="relapse-reason" class="field w-full rounded-xl px-3.5 py-3 text-sm mb-3 appearance-none">
-    <option value="Urge / Horniness" class="lang-str" data-key="reasonUrge">Strong Urge</option>
-    <option value="Boredom" class="lang-str" data-key="reasonBored">Boredom</option>
-    <option value="Stress / Anxiety" class="lang-str" data-key="reasonStress">Stress / Anxiety</option>
-    <option value="Social Media Trigger" class="lang-str" data-key="reasonTrigger">Social Media Trigger</option>
-    <option value="Loneliness" class="lang-str" data-key="reasonLonely">Loneliness</option>
-    <option value="Other" class="lang-str" data-key="reasonOther">Other</option>
+<!-- Modal: Secure Note (Vault) -->
+<div id="vault-note-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-3" id="vault-note-modal-title">New Secret Note</h3>
+  <input type="hidden" id="vault-edit-id" />
+  <input id="vault-note-title" type="text" placeholder="Note Title..." class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <textarea id="vault-note-content" rows="6" placeholder="Write secret note here..." class="field w-full rounded-xl p-4 text-sm resize-none mb-4"></textarea>
+  <button onclick="saveVaultNote()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Secret Note</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
+</div>
+
+<!-- Modal: Add Doc Hub -->
+<div id="dochub-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-3">Add Drive / Doc Link</h3>
+  <input id="doc-title" type="text" placeholder="Document Title (e.g. NID Card)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <input id="doc-url" type="url" placeholder="Drive URL (https://...)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <input id="doc-tag" type="text" placeholder="Tag (e.g. #Identity, #Certificate)" class="field w-full rounded-xl px-4 py-3 text-sm mb-5" />
+  <button onclick="addDocHub()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Doc Link</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
+</div>
+
+<!-- Modal: Add Snippet -->
+<div id="snippet-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-3">Add Code / Prompt</h3>
+  <input id="snippet-title" type="text" placeholder="Title (e.g. ChatGPT Prompt)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <textarea id="snippet-code" rows="5" placeholder="Paste code or prompt text here..." class="field w-full rounded-xl p-3 text-xs font-mono resize-none mb-4"></textarea>
+  <button onclick="addSnippet()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Snippet</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
+</div>
+
+<!-- Modal: Add Watchlist Item -->
+<div id="watch-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-3">Add to Watchlist / Books</h3>
+  <input id="watch-title" type="text" placeholder="Title (Movie/Book/Course)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  <select id="watch-status" class="field w-full rounded-xl px-4 py-3 text-sm mb-3">
+    <option value="plan">Plan to Watch/Read</option>
+    <option value="watching">Currently Watching/Reading</option>
+    <option value="completed">Completed</option>
   </select>
-
-  <textarea id="relapse-note" rows="2" placeholder="Note down how you feel so you can read it later..." class="field w-full rounded-xl p-3 text-sm resize-none mb-5 lang-ph" data-key="relapseNotePh"></textarea>
-
-  <button onclick="submitRelapse()" class="press w-full rounded-2xl py-3.5 font-bold text-sm mb-2 lang-str" data-key="saveRelapse" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444">Save Entry & Reset</button>
-  <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str" data-key="cancel" style="color:var(--text-3)">Cancel</button>
+  <select id="watch-rating" class="field w-full rounded-xl px-4 py-3 text-sm mb-4">
+    <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+    <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+    <option value="3">⭐⭐⭐ (3 Stars)</option>
+    <option value="2">⭐⭐ (2 Stars)</option>
+    <option value="1">⭐ (1 Star)</option>
+  </select>
+  <button onclick="addWatchItem()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Item</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
 </div>
 
-<!-- Add Fund (Deposit) Modal (অটো-লিংক চেক বক্সসহ) -->
-<div id="fund-modal" class="sheet glass-strong rounded-t-[28px] p-5 hidden-sheet">
-  <div class="w-10 h-1.5 rounded-full mx-auto mb-4" style="background:rgba(120,140,135,0.3)"></div>
-  <h3 class="font-bold text-lg mb-4 lang-str" data-key="addFundsTitle">Add Funds</h3>
-  <input type="hidden" id="fund-col">
-  <input type="hidden" id="fund-id">
-  <input id="fund-amount" type="number" placeholder="Amount ৳" class="field w-full rounded-xl px-4 py-3 text-lg font-bold mb-4" />
-  
-  <!-- Auto-Expense Checkbox (নতুন ৪ নম্বর) -->
-  <label class="flex items-center gap-2.5 text-xs font-semibold cursor-pointer mb-5">
-    <input type="checkbox" id="fund-auto-expense" class="w-4.5 h-4.5 rounded text-mint-500 focus:ring-mint-500" style="accent-color:#10ff9c" />
-    <span class="lang-str" data-key="autoExpenseLabel">Also log as Expense in Transactions</span>
-  </label>
-
-  <button onclick="submitFund()" class="press w-full rounded-2xl py-3.5 font-bold text-sm mb-2 lang-str" data-key="saveDeposit" style="background:#10ff9c; color:#04140d">Save Deposit</button>
-  <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str" data-key="cancel" style="color:var(--text-3)">Cancel</button>
-</div>
-
-<!-- View Site / Detail Modal -->
-<div id="details-modal" class="sheet glass-strong rounded-t-[28px] p-5 hidden-sheet" style="max-height: 80vh;">
-  <div class="w-10 h-1.5 rounded-full mx-auto mb-4" style="background:rgba(120,140,135,0.3)"></div>
-  <h3 class="font-bold text-lg mb-2" id="details-title">Details</h3>
-  <div id="details-content" class="space-y-3 pb-6"></div>
-  <button onclick="closeAllModals()" class="w-full rounded-2xl py-3 font-semibold text-sm lang-str bg-white/5" data-key="close">Close</button>
-</div>
-
+<div id="modal-backdrop" class="modal-backdrop" onclick="closeAllModals()"></div>
 <div id="toast-wrap"></div>
+
+<!-- Cosmetic View-Source & DevTools Deterrent -->
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+      e.preventDefault();
+    }
+  });
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -719,6 +535,8 @@ const firebaseConfig = {
 };
 
 const ALLOWED_EMAIL = "tarikulislamsupel755@gmail.com";
+const APP_CREATION_DATE = "2026-07-30"; 
+
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
@@ -727,122 +545,41 @@ window._fb = { auth, db, collection, addDoc, doc, setDoc, getDoc, getDocs, delet
 
 let currentUser = null;
 let unsubscribers = [];
-let currentMainTab = 'home';
-let parentOfSubView = 'tools'; 
 
-let currentLang = localStorage.getItem('nexus-lang') || 'en';
-const TRANSLATIONS = {
-  en: {
-    welcome: "Welcome back", subWelcome: "Sign in with your private account", email: "Email", password: "Password",
-    signIn: "Sign In", signingIn: "Signing in...", hi: "Hi, Supel", streakCount: "day streak", streakSub: "Keep opening Nexus daily",
-    totalBalance: "Total Balance", income: "Income", expense: "Expense", recentTxns: "Recent Transactions", noTxnsYet: "No transactions yet.",
-    tools: "Tools", searchPlaceholder: "Search ideas, links...", ideaDump: "Idea Dump", jotIdea: "Jot a quick idea...", noIdeasYet: "No ideas yet",
-    goalProgress: "Goals", goalName: "Goal name...", savingTarget: "Target ৳",
-    savingsGoals: "Savings", fundName: "Fund name...", noSavingsYet: "Empty", of: "of", left: "left",
-    debtTracker: "Debts Tracker", iOwe: "I Owe", owedToMe: "Owed To Me", person: "Person", addEntry: "Add Entry", youOwe: "You owe", owesYou: "Owes you", noDebtsYet: "No debts tracked",
-    watchList: "Watchlist", watchInput: "Book or movie name...", listEmpty: "List is empty", bookmarkSaver: "Bookmarks", title: "Title", noLinksYet: "No links saved",
-    journal: "Journal", journalPlaceholder: "What's on your mind today?", saveEntry: "Save Entry", journalEmpty: "Your journal is empty.",
-    settings: "Settings", ownerAccount: "Nexus Owner Account", lightMode: "Light Mode", languageLabel: "Language / ভাষা", dataMgmt: "Data Management",
-    exportBackup: "Export Backup", importBackup: "Import Backup", logout: "Logout", trashBin: "Trash Bin", trashEmpty: "Trash is empty", restore: "Restore", deletePerm: "Delete Permanently",
-    addTransaction: "Add Transaction", noteOptional: "Note (optional)", saveTransaction: "Save Transaction", cancel: "Cancel", close: "Close", amountLabel: "Amount", categoryLabel: "Category",
-    homeTab: "Home", toolsTab: "Tools", journalTab: "Journal", settingsTab: "Settings", recoveryTab: "Recovery",
-    recoveryTitle: "Addiction Recovery", currentStreak: "Current Streak", daysFree: "Days Free", recoveryTipsTitle: "My Motivation / Rules",
-    recoveryTipsDesc: "Write how to get out of it, your rules, why you want to quit...",
-    logRelapse: "I Relapsed (Log entry)", relapseHistory: "Relapse History", logRelapseTitle: "Log Relapse", relapseDesc: "Be honest. Why did this happen?",
-    reasonUrge: "Strong Urge / Horniness", reasonBored: "Boredom", reasonStress: "Stress / Anxiety", reasonTrigger: "Social Media Trigger", reasonLonely: "Loneliness", reasonOther: "Other",
-    relapseNotePh: "Note down how you feel so you can read it later...", saveRelapse: "Save Entry & Reset", noRelapsesYet: "Clean! Keep it up.",
-    studyTracker: "Study Tracker", subjectName: "Subject name...", studyHours: "Hours", didNotStudy: "Didn't study", reasonNotStudied: "Why didn't you study?", saveLog: "Save Log", noStudyYet: "No study logs",
-    microJobs: "Micro-Jobs", addNewSite: "Add New Site (Folder)", siteName: "Site name...", logIncome: "Log Income", saveIncome: "Save Income", siteFolders: "Site Folders", noSites: "No sites added",
-    addFundsTitle: "Add Funds", saveDeposit: "Save Deposit", historyLabel: "History", noHistory: "No deposits yet",
-    filterDateTitle: "Filter Activity by Date", noActivityOnDate: "No activity found on this date",
-    vaultTitle: "Secure Vault", secureData: "Secret Notes", autoExpenseLabel: "Also log as Expense in Transactions"
-  },
-  bn: {
-    welcome: "স্বাগতম", subWelcome: "আপনার ব্যক্তিগত অ্যাকাউন্ট দিয়ে সাইন ইন করুন", email: "ইমেইল", password: "পাসওয়ার্ড",
-    signIn: "সাইন ইন", signingIn: "সাইন ইন হচ্ছে...", hi: "হাই, সুপেল", streakCount: "দিনের ধারাবাহিকতা", streakSub: "নেক্সাস প্রতিদিন ওপেন রাখুন",
-    totalBalance: "মোট ব্যালেন্স", income: "আয়", expense: "ব্যয়", recentTxns: "সাম্প্রতিক লেনদেনসমূহ", noTxnsYet: "এখনো কোনো লেনদেন নেই।",
-    tools: "টুলস", searchPlaceholder: "আইডিয়া, লিংক খুঁজুন...", ideaDump: "আইডিয়া ডাম্প", jotIdea: "দ্রুত একটি আইডিয়া লিখুন...", noIdeasYet: "কোনো আইডিয়া নেই",
-    goalProgress: "লক্ষ্যসমূহ", goalName: "লক্ষ্যের নাম...", savingTarget: "লক্ষ্য ৳",
-    savingsGoals: "সঞ্চয়", fundName: "সঞ্চয়ের নাম...", noSavingsYet: "খালি", of: "এর মধ্যে", left: "বাকি",
-    debtTracker: "ধার / দেনা", iOwe: "আমি দেব", owedToMe: "আমাকে দেবে", person: "ব্যক্তি", addEntry: "তথ্য যোগ করুন", youOwe: "আপনাকে দিতে হবে", owesYou: "আপনার কাছে পাবে", noDebtsYet: "কোনো ধার বা দেনা নেই",
-    watchList: "ওয়াচলিস্ট", watchInput: "বই বা সিনেমার নাম...", listEmpty: "তালিকাটি খালি", bookmarkSaver: "বुकমার্ক", title: "শিরোনাম", noLinksYet: "কোনো লিংক সংরক্ষিত নেই",
-    journal: "জার্নাল", journalPlaceholder: "আজ আপনার মনে কী চলছে?", saveEntry: "সংরক্ষণ করুন", journalEmpty: "আপনার জার্নাল খালি।",
-    settings: "সেটিংস", ownerAccount: "নেক্সাস মালিক অ্যাকাউন্ট", lightMode: "লাইট মোড", languageLabel: "ভাষা / Language", dataMgmt: "ডাটা ম্যানেজমেন্ট",
-    exportBackup: "ব্যাকআপ ডাউনলোড", importBackup: "ব্যাকআপ আপলোড", logout: "লগআউট", trashBin: "রিসাইকেল বিন", trashEmpty: "বিন খালি", restore: "পুনরুদ্ধার", deletePerm: "চিরতরে মুছুন",
-    addTransaction: "লেনদেন যোগ করুন", noteOptional: "নোট (ঐচ্ছিক)", saveTransaction: "লেনদেন সংরক্ষণ করুন", cancel: "বাতিল", close: "বন্ধ করুন", amountLabel: "পরিমাণ", categoryLabel: "ক্যাটাগরি",
-    homeTab: "হোম", toolsTab: "টুলস", journalTab: "জার্নাল", settingsTab: "সেটিংস", recoveryTab: "মুক্তি",
-    recoveryTitle: "আসক্তি মুক্তি", currentStreak: "বর্তমান স্ট্রাইক", daysFree: "দিন মুক্ত", recoveryTipsTitle: "নিজের মোটিভেশন / রুলস",
-    recoveryTipsDesc: "কীভাবে বের হবো, নিজের রুলস, কেন ছাড়তে চাই তা এখানে লিখে রাখুন...",
-    logRelapse: "আমি হস্তমৈথুন করেছি", relapseHistory: "রিল্যাপস হিস্ট্রি", logRelapseTitle: "রিল্যাপস লগ করুন", relapseDesc: "সততার সাথে বলুন, কেন এমন হলো?",
-    reasonUrge: "তীব্র কামনা / সেক্সুয়াল উত্তেজনা", reasonBored: "বিরক্তি বা একঘেয়েমি", reasonStress: "মানসিক চাপ / দুশ্চিন্তা", reasonTrigger: "সোশ্যাল মিডিয়া ট্রিগার", reasonLonely: "একাকীত্ব", reasonOther: "অন্যান্য",
-    relapseNotePh: "আপনার বর্তমান অনুভূতি লিখে রাখুন যাতে পরে পড়তে পারেন...", saveRelapse: "সংরক্ষণ করুন ও রিসেট করুন", noRelapsesYet: "ক্লিন! এভাবেই চালিয়ে যান।",
-    studyTracker: "স্টাডি ট্র্যাকার", subjectName: "সাবজেক্টের নাম...", studyHours: "ঘণ্টা", didNotStudy: "পড়িনি", reasonNotStudied: "কেন পড়েননি?", saveLog: "লগ সেভ করুন", noStudyYet: "কোনো পড়ার তথ্য নেই",
-    microJobs: "মাইক্রো-জবস", addNewSite: "নতুন সাইট যোগ করুন", siteName: "সাইটের নাম...", logIncome: "ইনকাম যোগ করুন", saveIncome: "ইনকাম সেভ করুন", siteFolders: "সাইট ফোল্ডারসমূহ", noSites: "কোনো সাইট নেই",
-    addFundsTitle: "টাকা যোগ করুন", saveDeposit: "জমা সেভ করুন", historyLabel: "হিস্ট্রি", noHistory: "কোনো জমার তথ্য নেই",
-    filterDateTitle: "তারিখ অনুযায়ী ফিল্টার করুন", noActivityOnDate: "এই তারিখে কোনো তথ্য নেই",
-    vaultTitle: "গোপন ভল্ট", secureData: "গোপন নোটসমূহ", autoExpenseLabel: "হোম পেজে খরচ হিসেবে অটো-সেভ করুন"
-  }
-};
-
-const CATEGORIES = [
-  { id:'Food', icon:'fa-utensils', color:'#f59e0b' },
-  { id:'Travel', icon:'fa-plane', color:'#3b82f6' },
-  { id:'Shopping', icon:'fa-bag-shopping', color:'#a855f7' },
-  { id:'Salary', icon:'fa-money-bill-wave', color:'#10ff9c' },
-  { id:'Others', icon:'fa-ellipsis', color:'#94a3b8' }
-];
-const CATEGORY_NAMES = { en: { Food:'Food', Travel:'Travel', Shopping:'Shopping', Salary:'Salary', Others:'Others' }, bn: { Food:'খাবার', Travel:'ভ্রমণ', Shopping:'কেনাকাটা', Salary:'বেতন', Others:'অন্যান্য' } };
-
-function translateNumber(num) {
-  if (currentLang === 'en') return num;
-  const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-  return String(num).replace(/[0-9]/g, w => bnDigits[+w]);
-}
-
-let transactions = [], ideas = [], goals = [], savings = [], debts = [], watchlist = [], links = [], journalEntries = [], trashItems = [];
-let relapses = [], studies = [], microSites = [], microIncomes = [];
-let selectedTxnType = 'expense', selectedTxnCategory = 'Food', selectedDebtType = 'owe';
-
-// Vault States (গোপন ভল্ট)
-let vaultUnlocked = false;
-let vaultPin = null;
-let vaultNote = '';
-
-function fmtMoney(n){ return '৳' + translateNumber(Number(n||0).toLocaleString('en-US', {maximumFractionDigits:2})); }
-function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-
-function generateDateStrings() {
-  const d = new Date();
-  const dStr = d.toLocaleDateString(currentLang === 'bn' ? 'bn-BD' : 'en-US', {year:'numeric', month:'short', day:'numeric'});
-  const tStr = d.toLocaleTimeString(currentLang === 'bn' ? 'bn-BD' : 'en-US', {hour:'2-digit', minute:'2-digit'});
-  const isoDate = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  return { dStr, tStr, isoDate };
-}
-
-function toast(msg){
-  const wrap = document.getElementById('toast-wrap');
-  const el = document.createElement('div');
-  el.className = 'toast glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 text-xs font-semibold shadow-card text-[#10ff9c]';
-  el.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${msg}</span>`;
-  wrap.appendChild(el);
-  setTimeout(()=>{ el.style.transition='opacity .3s ease'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2200);
-}
-function escapeHtml(s){ const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
-window.escapeHtml = escapeHtml;
+let links = [], watchlist = [], ideas = [], journalEntries = [], docHub = [], snippets = [], vaultNotes = [], trashItems = [];
+let vaultUnlocked = false, vaultPin = null;
 
 function userCol(name){ return window._fb.collection(window._fb.db, 'users', currentUser.uid, name); }
 function userDoc(name, id){ return window._fb.doc(window._fb.db, 'users', currentUser.uid, name, id); }
 
-// Login & Auth
+function toast(msg){
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 text-xs font-semibold shadow-card text-mint-400';
+  el.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2200);
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+window.escapeHtml = escapeHtml;
+
+function generateDateStrings() {
+  const d = new Date();
+  const dStr = d.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'});
+  const tStr = d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+  const isoDate = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  return { dStr, tStr, isoDate };
+}
+
+// LOGIN & AUTH
 document.getElementById('login-form').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const em = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-password').value;
-  document.getElementById('login-btn').disabled = true;
-  document.getElementById('login-btn-text').textContent = TRANSLATIONS[currentLang].signingIn;
   try{ await window._fb.signInWithEmailAndPassword(auth, em, pw); }
-  catch(err){ document.getElementById('login-error').textContent = 'Error: ' + err.code; document.getElementById('login-error').classList.remove('hidden'); document.getElementById('login-btn').disabled = false; document.getElementById('login-btn-text').textContent = TRANSLATIONS[currentLang].signIn; }
+  catch(err){ document.getElementById('login-error').textContent = 'Error: ' + err.message; document.getElementById('login-error').classList.remove('hidden'); }
 });
+
 window.handleLogout = async function(){ if(confirm('Logout?')) await window._fb.signOut(auth); };
 
 onAuthStateChanged(auth, async (user)=>{
@@ -850,7 +587,7 @@ onAuthStateChanged(auth, async (user)=>{
   if(user && user.email === ALLOWED_EMAIL){
     currentUser = user; document.getElementById('settings-email').textContent = user.email;
     document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-root').classList.remove('hidden');
-    attachListeners(); await updateStreak(); applyLanguage();
+    attachListeners(); updateAppCounters();
   } else {
     if(user) await window._fb.signOut(auth);
     document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-root').classList.add('hidden');
@@ -858,79 +595,63 @@ onAuthStateChanged(auth, async (user)=>{
   }
 });
 
-// Listeners
 function attachListeners(){
   const qs = (colName) => window._fb.query(userCol(colName), window._fb.orderBy('createdAt','desc'));
-  unsubscribers.push(window._fb.onSnapshot(qs('transactions'), s=>{ transactions = s.docs.map(d=>({id:d.id,...d.data()})); renderHome(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('relapses'), s=>{ relapses = s.docs.map(d=>({id:d.id,...d.data()})); renderRecovery(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('studies'), s=>{ studies = s.docs.map(d=>({id:d.id,...d.data()})); renderStudies(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('micro_sites'), s=>{ microSites = s.docs.map(d=>({id:d.id,...d.data()})); renderMicroSites(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('micro_incomes'), s=>{ microIncomes = s.docs.map(d=>({id:d.id,...d.data()})); renderMicroIncomes(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('goals'), s=>{ goals = s.docs.map(d=>({id:d.id,...d.data()})); renderFundsList('goals', goals); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('savings'), s=>{ savings = s.docs.map(d=>({id:d.id,...d.data()})); renderFundsList('savings', savings); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('debts'), s=>{ debts = s.docs.map(d=>({id:d.id,...d.data()})); renderDebts(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('ideas'), s=>{ ideas = s.docs.map(d=>({id:d.id,...d.data()})); renderIdeas(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('watchlist'), s=>{ watchlist = s.docs.map(d=>({id:d.id,...d.data()})); renderWatchlist(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('links'), s=>{ links = s.docs.map(d=>({id:d.id,...d.data()})); renderLinks(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('journal'), s=>{ journalEntries = s.docs.map(d=>({id:d.id,...d.data()})); renderJournal(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('links'), s=>{ links = s.docs.map(d=>({id:d.id,...d.data()})); renderLinks(); renderHomePinned(); updateStats(); renderFlashback(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('watchlist'), s=>{ watchlist = s.docs.map(d=>({id:d.id,...d.data()})); renderWatchlist(); updateStats(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('ideas'), s=>{ ideas = s.docs.map(d=>({id:d.id,...d.data()})); renderIdeas(); renderFlashback(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('journal'), s=>{ journalEntries = s.docs.map(d=>({id:d.id,...d.data()})); renderJournal(); renderFlashback(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('dochub'), s=>{ docHub = s.docs.map(d=>({id:d.id,...d.data()})); renderDocHub(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('snippets'), s=>{ snippets = s.docs.map(d=>({id:d.id,...d.data()})); renderSnippets(); }));
+  unsubscribers.push(window._fb.onSnapshot(qs('vault_notes'), s=>{ vaultNotes = s.docs.map(d=>({id:d.id,...d.data()})); renderVaultNotes(); updateStats(); }));
   unsubscribers.push(window._fb.onSnapshot(window._fb.query(userCol('trash'), window._fb.orderBy('deletedAt','desc')), s=>{ trashItems = s.docs.map(d=>({id:d.id,...d.data()})); renderTrash(); }));
   
-  // Sync Motivation Note
-  unsubscribers.push(window._fb.onSnapshot(userDoc('meta','recovery'), s=>{ 
-    if(s.exists()){ document.getElementById('recovery-motivation').value = s.data().text || ''; } 
-  }));
-
-  // Sync Secure Vault Config
   unsubscribers.push(window._fb.onSnapshot(userDoc('meta','vault'), s=>{
-    if(s.exists()){
-      const d = s.data();
-      vaultPin = d.pin || null;
-      vaultNote = d.note || '';
-    } else {
-      vaultPin = null;
-      vaultNote = '';
-    }
-    renderVault();
+    vaultPin = s.exists() ? s.data().pin : null;
+    renderVaultUI();
   }));
 }
 
-async function updateStreak(){
-  try{
-    const ref = userDoc('meta','streak'); const snap = await window._fb.getDoc(ref);
-    let count=1; const today = todayStr();
-    if(snap.exists()){
-      const d = snap.data();
-      if(d.lastActive === today) count = d.count||1;
-      else { const y = new Date(); y.setDate(y.getDate()-1); count = (d.lastActive === y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0')) ? (d.count||0)+1 : 1; }
-    }
-    await window._fb.setDoc(ref, { lastActive: today, count }, { merge:true });
-    document.getElementById('streak-count').textContent = translateNumber(count) + ' ' + TRANSLATIONS[currentLang].streakCount;
-  }catch(e){}
+// COUNTERS SYSTEM
+async function updateAppCounters(){
+  const start = new Date(APP_CREATION_DATE);
+  const now = new Date();
+  const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+  document.getElementById('app-age-days').textContent = diffDays;
+
+  const todayIso = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  const streakRef = userDoc('meta','visit_stats');
+  const snap = await window._fb.getDoc(streakRef);
+  let visits = [];
+  if(snap.exists()){
+    visits = snap.data().visits || [];
+    if(!visits.includes(todayIso)){ visits.push(todayIso); await window._fb.setDoc(streakRef, { visits }, { merge:true }); }
+  } else {
+    visits = [todayIso];
+    await window._fb.setDoc(streakRef, { visits }, { merge:true });
+  }
+  document.getElementById('app-active-days').textContent = visits.length;
 }
 
-// Windows / Navigation
+// NAVIGATION
 window.switchTab = function(tab){
-  currentMainTab = tab;
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  document.getElementById('fab-add').style.display = tab==='home' ? 'grid' : 'none';
   window.scrollTo({top:0});
 };
 
-window.openSubView = function(viewId, parent = 'tools'){
-  parentOfSubView = parent;
+window.openSubView = function(viewId){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active'));
   document.getElementById(viewId).classList.add('active');
   document.getElementById('bottom-nav').style.display = 'none';
-  document.getElementById('fab-add').style.display = 'none';
   window.scrollTo({top:0});
 };
 
 window.closeSubView = function(){
   document.getElementById('bottom-nav').style.display = 'flex';
-  switchTab(parentOfSubView);
+  switchTab('tools');
 };
 
 window.openModal = function(id){
@@ -942,584 +663,356 @@ window.closeAllModals = function(){
   document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
 };
 
-// Trash logic
-async function moveToTrash(colName, id) {
+// TRASH
+async function moveToTrash(colName, id){
   const ref = userDoc(colName, id); const snap = await window._fb.getDoc(ref);
   if(snap.exists()){
     const { dStr, tStr } = generateDateStrings();
     await window._fb.addDoc(userCol('trash'), { originalCollection: colName, originalId: id, delDateStr: dStr, delTimeStr: tStr, deletedAt: window._fb.serverTimestamp(), data: snap.data() });
     await window._fb.deleteDoc(ref);
+    toast('Moved to Trash');
   }
 }
 window.moveToTrash = moveToTrash;
-window.deleteItem = moveToTrash;
 
-// HOME
-function renderHome(){
-  let inc=0, exp=0;
-  transactions.forEach(t=>{ if(t.type==='income')inc+=Number(t.amount); else exp+=Number(t.amount); });
-  document.getElementById('total-balance').textContent = fmtMoney(inc-exp);
-  document.getElementById('total-income').textContent = fmtMoney(inc);
-  document.getElementById('total-expense').textContent = fmtMoney(exp);
-  
-  document.getElementById('txn-count').textContent = translateNumber(transactions.length) + ' total';
-  const list = document.getElementById('txn-list');
-  if(!transactions.length){ list.innerHTML=''; document.getElementById('txn-empty').classList.remove('hidden'); return; }
-  document.getElementById('txn-empty').classList.add('hidden');
-  list.innerHTML = transactions.slice(0,15).map(t=>{
-    const c = CATEGORIES.find(x=>x.id===t.category) || CATEGORIES[4];
-    const isInc = t.type==='income';
-    return `
-    <div class="glass rounded-2xl px-3.5 py-3 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl grid place-items-center shrink-0" style="background:${c.color}22"><i class="fa-solid ${c.icon} text-sm" style="color:${c.color}"></i></div>
-      <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold truncate">${escapeHtml(t.note) || (CATEGORY_NAMES[currentLang][t.category]||t.category)}</p>
-        <p class="text-[11px]" style="color:var(--text-3)">${t.dateStr||''} · ${t.timeStr||''}</p>
-      </div>
-      <p class="text-sm font-bold ${isInc?'text-mint-500':'text-red-400'}">${isInc?'+':'-'}${fmtMoney(t.amount)}</p>
-      <button onclick="moveToTrash('transactions','${t.id}')" class="shrink-0 press ml-1" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-    </div>`;
-  }).join('');
+// HOME PINNED LINKS & STATS
+function renderHomePinned(){
+  const pinned = links.filter(l=>l.pinned);
+  document.getElementById('home-pinned-links').innerHTML = pinned.map(l=>`
+    <a href="${l.url}" target="_blank" class="press glass px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-mint-500/20">
+      <i class="fa-solid fa-link text-mint-400 text-[10px]"></i>
+      <span>${escapeHtml(l.title)}</span>
+    </a>
+  `).join('') || `<p class="text-xs text-gray-500">No pinned links yet. Pin shortcuts from Bookmarks tab.</p>`;
 }
 
-window.setTxnType = function(type){
-  selectedTxnType = type;
-  const e = document.getElementById('txn-type-expense'), i = document.getElementById('txn-type-income');
-  if(type==='expense'){
-    e.style.background='rgba(239,68,68,0.15)'; e.style.color='#f87171'; e.style.border='1.5px solid #ef4444'; e.classList.remove('glass');
-    i.style.background=''; i.style.color='var(--text-2)'; i.style.border='none'; i.classList.add('glass');
-  } else {
-    i.style.background='rgba(16,255,156,0.15)'; i.style.color='#10ff9c'; i.style.border='1.5px solid #10ff9c'; i.classList.remove('glass');
-    e.style.background=''; e.style.color='var(--text-2)'; e.style.border='none'; e.classList.add('glass');
-  }
-};
-window.setTxnCategory = function(id){ selectedTxnCategory = id; renderTxnCategories(); };
-function renderTxnCategories(){
-  document.getElementById('txn-categories').innerHTML = CATEGORIES.map(c=> `
-    <button type="button" onclick="setTxnCategory('${c.id}')" class="cat-pill ${c.id===selectedTxnCategory?'selected':''} glass px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5">
-      <i class="fa-solid ${c.icon} text-[10px]"></i>${CATEGORY_NAMES[currentLang][c.id]||c.id}
-    </button>`).join('');
+function updateStats(){
+  document.getElementById('stat-links-count').textContent = links.length;
+  document.getElementById('stat-watch-count').textContent = watchlist.length;
+  document.getElementById('stat-vault-count').textContent = vaultNotes.length;
+  document.getElementById('home-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 }
-window.submitTxn = async function(){
-  const amount = parseFloat(document.getElementById('txn-amount').value);
-  if(!amount) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('transactions'), { type: selectedTxnType, category: selectedTxnCategory, amount, note: document.getElementById('txn-note').value.trim(), dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  closeAllModals(); document.getElementById('txn-amount').value=''; document.getElementById('txn-note').value=''; toast('Transaction saved');
-};
 
-// RECOVERY
-window.saveRecoveryMotivation = async function() {
-  const text = document.getElementById('recovery-motivation').value;
-  await window._fb.setDoc(userDoc('meta','recovery'), { text }, { merge:true });
-  toast('Rules saved');
-};
+// FLASHBACK (ON THIS DAY)
+function renderFlashback(){
+  const box = document.getElementById('flashback-content');
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2,'0');
+  const month = String(today.getMonth()+1).padStart(2,'0');
 
-function renderRecovery(){
-  let streak = 0;
-  let longest = 0;
-  const totalRelapses = relapses.length;
-  
-  if(relapses.length > 0){
-    const last = relapses[0].createdAt?.toDate ? relapses[0].createdAt.toDate() : new Date();
-    streak = Math.floor((new Date() - last) / (1000*60*60*24));
-    
-    let tempMax = 0;
-    for(let i=0; i<relapses.length-1; i++) {
-       const d1 = relapses[i].createdAt?.toDate ? relapses[i].createdAt.toDate() : new Date();
-       const d2 = relapses[i+1].createdAt?.toDate ? relapses[i+1].createdAt.toDate() : new Date();
-       const diff = Math.floor((d1 - d2) / (1000*60*60*24));
-       if(diff > tempMax) tempMax = diff;
+  const matches = [];
+  [...links, ...ideas, ...journalEntries].forEach(item=>{
+    if(item.isoDate){
+      const parts = item.isoDate.split('-');
+      if(parts[1] === month && parts[2] === day && parts[0] !== String(today.getFullYear())){
+        matches.push(item);
+      }
     }
-    longest = Math.max(tempMax, streak);
+  });
 
+  if(matches.length > 0){
+    const item = matches[0];
+    box.innerHTML = `<p class="font-bold text-gray-200">${escapeHtml(item.title || item.text)}</p><p class="text-[10px] text-gray-400 mt-1">Saved on ${item.dateStr}</p>`;
   } else {
-    streak = "∞"; longest = "∞";
+    box.innerHTML = `<p class="text-gray-400">No memories recorded on this exact calendar day in past years.</p>`;
   }
-
-  document.getElementById('nofap-streak').textContent = streak === "∞" ? "∞" : translateNumber(streak);
-  document.getElementById('nofap-longest').textContent = longest === "∞" ? "∞" : translateNumber(longest);
-  document.getElementById('nofap-total-relapses').textContent = translateNumber(totalRelapses);
-  
-  const list = document.getElementById('relapse-list');
-  if(!relapses.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noRelapsesYet}</p>`; return; }
-  list.innerHTML = relapses.map(r=>`
-    <div class="glass rounded-2xl px-4 py-3 border-l-2 border-l-red-500 flex justify-between items-start">
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center justify-between mb-1">
-          <p class="text-xs font-bold text-red-400 uppercase tracking-wide">${r.reason}</p>
-          <span class="text-[10px] pr-2" style="color:var(--text-3)">${r.dateStr} · ${r.timeStr}</span>
-        </div>
-        ${r.note ? `<p class="text-sm mt-2">${escapeHtml(r.note)}</p>` : ''}
-      </div>
-      <!-- Relapse Delete Button (আসক্তি মুক্তি ডিলিট) -->
-      <button onclick="moveToTrash('relapses','${r.id}')" class="shrink-0 press ml-2 text-gray-500" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-    </div>`).join('');
 }
 
-window.submitRelapse = async function(){
-  const reason = document.getElementById('relapse-reason').value;
-  const note = document.getElementById('relapse-note').value.trim();
+// BOOKMARKS
+window.addLink = async function(){
+  const t = document.getElementById('link-title').value.trim();
+  let u = document.getElementById('link-url').value.trim();
+  if(!t || !u) return;
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
   const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('relapses'), { reason, note, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  closeAllModals(); document.getElementById('relapse-note').value=''; toast('Relapse logged. Start again!');
+  await window._fb.addDoc(userCol('links'), { title: t, url: u, pinned: false, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('link-title').value=''; document.getElementById('link-url').value=''; closeAllModals(); toast('Bookmark saved');
+};
+window.togglePinLink = async function(id, cur){
+  await window._fb.updateDoc(userDoc('links', id), { pinned: !cur });
 };
 
-// STUDY TRACKER
-window.toggleStudyReason = function(checked){
-  const hrs = document.getElementById('study-hours');
-  const rsn = document.getElementById('study-reason');
-  if(checked){ hrs.classList.add('hidden'); hrs.value=''; rsn.classList.remove('hidden'); }
-  else { hrs.classList.remove('hidden'); rsn.classList.add('hidden'); rsn.value=''; }
-};
-window.addStudyLog = async function(){
-  const subject = document.getElementById('study-subject').value.trim();
-  const didNotStudy = document.getElementById('study-not-done').checked;
-  const hours = document.getElementById('study-hours').value;
-  const reason = document.getElementById('study-reason').value.trim();
-  if(!subject) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('studies'), { subject, didNotStudy, hours: didNotStudy?null:hours, reason: didNotStudy?reason:null, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('study-subject').value=''; document.getElementById('study-hours').value=''; document.getElementById('study-reason').value=''; document.getElementById('study-not-done').checked=false; toggleStudyReason(false); toast('Study log saved');
-};
-function renderStudies(){
-  const list = document.getElementById('study-list');
-  if(!studies.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noStudyYet}</p>`; return; }
-  list.innerHTML = studies.map(s=>`
-    <div class="glass rounded-xl p-3.5 flex flex-col gap-1.5 border-l-2 ${s.didNotStudy?'border-l-red-500':'border-l-blue-400'}">
-      <div class="flex items-center justify-between">
-        <p class="text-sm font-bold truncate">${escapeHtml(s.subject)}</p>
-        <div class="flex items-center gap-2">
-           <span class="text-[10px]" style="color:var(--text-3)">${s.dateStr} · ${s.timeStr}</span>
-           <button onclick="moveToTrash('studies','${s.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-        </div>
-      </div>
-      <p class="text-xs font-semibold ${s.didNotStudy?'text-red-400':'text-blue-400'}">${s.didNotStudy ? escapeHtml(s.reason) : `${translateNumber(s.hours)} Hours`}</p>
-    </div>`).join('');
-}
-
-// MICRO JOBS
-window.addMicroSite = async function(){
-  const name = document.getElementById('micro-site-name').value.trim();
-  if(!name) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('micro_sites'), { name, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('micro-site-name').value=''; toast('Site added');
-};
-window.addMicroIncome = async function(){
-  const siteId = document.getElementById('micro-site-select').value;
-  const amount = parseFloat(document.getElementById('micro-amount').value);
-  if(!siteId || !amount) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('micro_incomes'), { siteId, amount, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('micro-amount').value=''; toast('Income logged');
-};
-function renderMicroSites(){
-  const sel = document.getElementById('micro-site-select');
-  sel.innerHTML = microSites.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
-  renderMicroIncomes(); 
-}
-function renderMicroIncomes(){
-  const list = document.getElementById('micro-list');
-  if(!microSites.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noSites}</p>`; return; }
-  
-  const siteMap = {}; microSites.forEach(s=>siteMap[s.id] = { name:s.name, total:0, logs:[] });
-  microIncomes.forEach(inc=>{ if(siteMap[inc.siteId]){ siteMap[inc.siteId].total+=Number(inc.amount); siteMap[inc.siteId].logs.push(inc); } });
-
-  list.innerHTML = Object.keys(siteMap).map(siteId=>{
-    const site = siteMap[siteId];
-    return `
-    <button onclick="viewSiteDetails('${siteId}')" class="w-full glass rounded-xl px-4 py-3 flex items-center justify-between press mb-2">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg grid place-items-center bg-emerald-500/15"><i class="fa-solid fa-folder text-xs text-emerald-400"></i></div>
-        <span class="text-sm font-bold">${escapeHtml(site.name)}</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="text-right">
-          <p class="text-sm font-bold" style="color:#10ff9c">${fmtMoney(site.total)}</p>
-          <p class="text-[10px]" style="color:var(--text-3)">${translateNumber(site.logs.length)} entries</p>
-        </div>
-        <div onclick="event.stopPropagation(); moveToTrash('micro_sites','${siteId}')" class="text-gray-500 p-2"><i class="fa-solid fa-trash text-xs"></i></div>
-      </div>
-    </button>`;
-  }).join('');
-}
-window.viewSiteDetails = function(siteId){
-  const site = microSites.find(s=>s.id===siteId);
-  if(!site) return;
-  const logs = microIncomes.filter(inc=>inc.siteId===siteId);
-  document.getElementById('details-title').textContent = site.name;
-  document.getElementById('details-content').innerHTML = logs.map(l=>`
-    <div class="glass rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-      <span class="text-[11px]" style="color:var(--text-3)">${l.dateStr} · ${l.timeStr}</span>
-      <div class="flex items-center gap-3">
-         <span class="text-sm font-bold text-mint-500">+${fmtMoney(l.amount)}</span>
-         <button onclick="moveToTrash('micro_incomes', '${l.id}'); closeAllModals()" class="text-gray-500"><i class="fa-solid fa-trash text-xs"></i></button>
-      </div>
-    </div>
-  `).join('') || `<p class="text-xs text-center empty-state">${TRANSLATIONS[currentLang].noHistory}</p>`;
-  openModal('details-modal');
-};
-
-// GOALS & SAVINGS
-window.addFundItem = async function(col){
-  const prefix = col === 'goals' ? 'goal' : 'saving';
-  const name = document.getElementById(`${prefix}-name`).value.trim();
-  const target = parseFloat(document.getElementById(`${prefix}-target`).value);
-  if(!name || !target) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol(col), { name, target, history: [], dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById(`${prefix}-name`).value=''; document.getElementById(`${prefix}-target`).value=''; toast('Saved');
-};
-
-window.openFundModal = function(col, id){
-  document.getElementById('fund-col').value = col;
-  document.getElementById('fund-id').value = id;
-  document.getElementById('fund-amount').value = '';
-  document.getElementById('fund-auto-expense').checked = false; // reset checkbox
-  openModal('fund-modal');
-};
-
-window.submitFund = async function(){
-  const col = document.getElementById('fund-col').value;
-  const id = document.getElementById('fund-id').value;
-  const amount = parseFloat(document.getElementById('fund-amount').value);
-  const autoExpense = document.getElementById('fund-auto-expense').checked;
-  if(!amount) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  
-  const arr = col==='goals'?goals:savings;
-  const item = arr.find(x=>x.id===id);
-  const newHist = [...(item.history||[])];
-  newHist.push({ amount, dateStr: dStr, timeStr: tStr, isoDate, ms: Date.now() });
-  
-  // Auto-Expense (নতুন ৪ নম্বর)
-  if (autoExpense) {
-    await window._fb.addDoc(userCol('transactions'), {
-      type: 'expense',
-      category: 'Others',
-      amount: amount,
-      note: `${col==='goals'?'Goal':'Savings'} Fund: ${item.name}`,
-      dateStr: dStr,
-      timeStr: tStr,
-      isoDate,
-      createdAt: window._fb.serverTimestamp()
-    });
-  }
-
-  await window._fb.updateDoc(userDoc(col, id), { history: newHist });
-  closeAllModals(); toast('Funds added');
-};
-
-window.deleteFundHistory = async function(col, docId, ms) {
-  const arr = col === 'goals' ? goals : savings;
-  const item = arr.find(x => x.id === docId);
-  const newHist = item.history.filter(h => h.ms !== ms);
-  await window._fb.updateDoc(userDoc(col, docId), { history: newHist });
-  closeAllModals(); toast('History removed');
-};
-
-function renderFundsList(col, arr){
-  const listId = col==='goals'?'goals-list':'savings-list';
-  const list = document.getElementById(listId);
-  if(!arr.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noSavingsYet}</p>`; return; }
-  
-  list.innerHTML = arr.map(item=>{
-    const current = (item.history||[]).reduce((sum, h)=>sum+Number(h.amount), 0);
-    const pct = Math.min(100, Math.round((current/Number(item.target||1))*100));
-    return `
-    <div class="field rounded-2xl p-4">
-      <div class="flex items-center justify-between mb-1">
-        <p class="text-sm font-semibold truncate pr-2">${escapeHtml(item.name)}</p>
-        <button onclick="moveToTrash('${col}','${item.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-      </div>
-      <p class="text-[10px] mb-3" style="color:var(--text-3)">Created: ${item.dateStr||''} ${item.timeStr||''}</p>
-      <div class="w-full h-2 rounded-full mb-2" style="background:rgba(120,140,135,0.2)">
-        <div class="h-full rounded-full" style="width:${pct}%; background:#10ff9c"></div>
-      </div>
-      <div class="flex items-center justify-between text-[11px] mb-3" style="color:var(--text-3)">
-        <span>${fmtMoney(current)} ${TRANSLATIONS[currentLang].of} ${fmtMoney(item.target)}</span>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="viewFundDetails('${col}', '${item.id}')" class="press py-2 rounded-xl text-xs font-semibold glass">${TRANSLATIONS[currentLang].historyLabel}</button>
-        <button onclick="openFundModal('${col}', '${item.id}')" class="press py-2 rounded-xl text-xs font-semibold text-gray-900" style="background:#10ff9c">+ Add Funds</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-window.viewFundDetails = function(col, id){
-  const arr = col==='goals'?goals:savings;
-  const item = arr.find(x=>x.id===id);
-  const hist = [...(item.history||[])].sort((a,b)=>b.ms - a.ms);
-  document.getElementById('details-title').textContent = item.name + ' - History';
-  document.getElementById('details-content').innerHTML = hist.map(h=>`
-    <div class="glass rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-      <span class="text-[11px]" style="color:var(--text-3)">${h.dateStr} · ${h.timeStr}</span>
-      <div class="flex items-center gap-3">
-         <span class="text-sm font-bold text-mint-500">+${fmtMoney(h.amount)}</span>
-         <button onclick="deleteFundHistory('${col}', '${id}', ${h.ms})" class="text-gray-500"><i class="fa-solid fa-trash text-xs"></i></button>
-      </div>
-    </div>
-  `).join('') || `<p class="text-xs text-center empty-state">${TRANSLATIONS[currentLang].noHistory}</p>`;
-  openModal('details-modal');
-};
-
-// DEBTS
-window.setDebtType = function(type){
-  selectedDebtType = type;
-  const owe = document.getElementById('debt-type-owe'), owed = document.getElementById('debt-type-owed');
-  if(type==='owe'){
-    owe.style.background='#10ff9c'; owe.style.color='#04140d'; owe.classList.remove('glass');
-    owed.style.background=''; owed.style.color='var(--text-2)'; owed.classList.add('glass');
-  } else {
-    owed.style.background='#10ff9c'; owed.style.color='#04140d'; owed.classList.remove('glass');
-    owe.style.background=''; owe.style.color='var(--text-2)'; owe.classList.add('glass');
-  }
-};
-window.addDebt = async function(){
-  const person = document.getElementById('debt-person').value.trim(), amount = parseFloat(document.getElementById('debt-amount').value);
-  if(!person || !amount) return;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('debts'), { person, amount, type: selectedDebtType, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('debt-person').value=''; document.getElementById('debt-amount').value=''; toast('Debt entry added');
-};
-function renderDebts(){
-  const list = document.getElementById('debts-list');
-  if(!debts.length){ list.innerHTML = `<p class="text-xs text-center py-3 empty-state" style="color:var(--text-3)">${TRANSLATIONS[currentLang].noDebtsYet}</p>`; return; }
-  list.innerHTML = debts.map(d=>`
-    <div class="flex items-center gap-3 field rounded-xl px-3.5 py-3">
-      <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold truncate">${escapeHtml(d.person)}</p>
-        <p class="text-[10px] uppercase mt-0.5" style="color:${d.type==='owe' ? '#f87171' : '#10ff9c'}">${d.type==='owe' ? TRANSLATIONS[currentLang].youOwe : TRANSLATIONS[currentLang].owesYou} · ${d.dateStr||''} ${d.timeStr||''}</p>
-      </div>
-      <p class="text-sm font-bold shrink-0">${fmtMoney(d.amount)}</p>
-      <button onclick="moveToTrash('debts','${d.id}')" class="shrink-0 press ml-2" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-    </div>`).join('');
-}
-
-// IDEAS, WATCHLIST, LINKS (বুকমার্ক ও পিনড লিংক), JOURNAL
-window.addIdea = async function(){ const v=document.getElementById('idea-input').value.trim(); if(!v)return; const { dStr, tStr, isoDate } = generateDateStrings(); await window._fb.addDoc(userCol('ideas'),{text:v, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('idea-input').value=''; toast('Idea saved'); };
-function renderIdeas(){ document.getElementById('ideas-list').innerHTML = ideas.map(i=>`<div class="flex items-start gap-3 field rounded-xl px-3.5 py-3"><i class="fa-solid fa-lightbulb text-sm text-yellow-400 shrink-0 mt-0.5"></i><div class="flex-1 min-w-0"><p class="text-sm break-words">${escapeHtml(i.text)}</p><p class="text-[10px] mt-1" style="color:var(--text-3)">${i.dateStr||''} · ${i.timeStr||''}</p></div><button onclick="moveToTrash('ideas','${i.id}')" class="shrink-0" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div>`).join(''); }
-
-window.addWatch = async function(){ const v=document.getElementById('watch-input').value.trim(); if(!v)return; const { dStr, tStr, isoDate } = generateDateStrings(); await window._fb.addDoc(userCol('watchlist'),{title:v, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('watch-input').value=''; toast('Added'); };
-function renderWatchlist(){ document.getElementById('watch-list').innerHTML = watchlist.map(w=>`<div class="flex items-center gap-3 field rounded-xl px-3.5 py-3"><div class="flex-1 min-w-0"><p class="text-sm truncate">${escapeHtml(w.title)}</p><p class="text-[10px] mt-0.5" style="color:var(--text-3)">${w.dateStr||''} · ${w.timeStr||''}</p></div><button onclick="moveToTrash('watchlist','${w.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div>`).join(''); }
-
-window.addLink = async function(){ 
-  const t=document.getElementById('link-title').value.trim(); 
-  let u=document.getElementById('link-url').value.trim(); 
-  if(!t||!u)return; 
-  if(!/^https?:\/\//i.test(u))u='https://'+u; 
-  const { dStr, tStr, isoDate } = generateDateStrings(); 
-  await window._fb.addDoc(userCol('links'),{title:t,url:u, pinned:false, dateStr:dStr, timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); 
-  document.getElementById('link-title').value=''; document.getElementById('link-url').value=''; toast('Saved'); 
-};
-
-window.togglePinLink = async function(id, currentlyPinned) {
-  await window._fb.updateDoc(userDoc('links', id), { pinned: !currentlyPinned });
-  toast(!currentlyPinned ? 'Pinned Bookmark' : 'Unpinned Bookmark');
-};
-
-// Bookmarks + Pinned links inside view-links (আগের ৪ নম্বর)
-function renderLinks(){ 
-  const container = document.getElementById('links-list');
-  const pinnedLinks = links.filter(l => l.pinned);
-  
-  let pinnedHtml = '';
-  if (pinnedLinks.length > 0) {
-    pinnedHtml = `
-      <div class="mb-4">
-        <p class="text-[11px] font-bold uppercase text-mint-500 mb-2">📌 Pinned Shortcuts</p>
-        <div class="flex flex-wrap gap-2">
-          ${pinnedLinks.map(l => `
-            <a href="${l.url}" target="_blank" class="press glass px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-[#10ff9c]/25">
-              <i class="fa-solid fa-link text-[10px] text-mint-500"></i>
-              <span>${escapeHtml(l.title)}</span>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  container.innerHTML = pinnedHtml + `<div class="space-y-2">` + links.map(l=>`
+function renderLinks(){
+  const q = (document.getElementById('search-links')?.value || '').toLowerCase();
+  const filtered = links.filter(l => l.title.toLowerCase().includes(q) || l.url.toLowerCase().includes(q));
+  document.getElementById('links-list').innerHTML = filtered.map(l=>`
     <div class="flex items-center gap-3 field rounded-xl px-3.5 py-3">
       <a href="${l.url}" target="_blank" class="min-w-0 flex-1">
         <p class="text-sm font-semibold truncate flex items-center gap-1.5">
-          ${l.pinned ? '<span class="text-mint-500 text-xs">📌</span>' : ''}
+          ${l.pinned ? '<span class="text-mint-400 text-xs">📌</span>' : ''}
           <span>${escapeHtml(l.title)}</span>
         </p>
         <p class="text-[11px] truncate mt-0.5" style="color:var(--text-3)">${escapeHtml(l.url)}</p>
-        <p class="text-[10px] mt-1" style="color:var(--text-3)">${l.dateStr||''} · ${l.timeStr||''}</p>
       </a>
-      <div class="flex items-center gap-2.5">
-        <button onclick="togglePinLink('${l.id}', ${!!l.pinned})" class="press ${l.pinned ? 'text-mint-400' : 'text-gray-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
-        <button onclick="moveToTrash('links','${l.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-      </div>
-    </div>`).join('') + `</div>`; 
+      <button onclick="togglePinLink('${l.id}', ${!!l.pinned})" class="press ${l.pinned?'text-mint-400':'text-gray-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+      <button onclick="moveToTrash('links','${l.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No bookmarks found.</p>`;
 }
+window.renderLinks = renderLinks;
 
-window.saveJournal = async function(){ const v=document.getElementById('journal-input').value.trim(); if(!v)return; const {dStr,tStr, isoDate}=generateDateStrings(); await window._fb.addDoc(userCol('journal'),{text:v,dateStr:dStr,timeStr:tStr, isoDate, createdAt:window._fb.serverTimestamp()}); document.getElementById('journal-input').value=''; toast('Entry saved'); };
-function renderJournal(){ document.getElementById('journal-list').innerHTML = journalEntries.map(j=>`<div class="glass rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><p class="text-[11px] font-semibold" style="color:#10ff9c">${j.dateStr||''} · ${j.timeStr||''}</p><button onclick="moveToTrash('journal','${j.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button></div><p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(j.text)}</p></div>`).join(''); }
-
-// SECURE VAULT FUNCTIONS (নতুন ৫ নম্বর)
-window.lockVault = function() {
-  vaultUnlocked = false;
-  document.getElementById('vault-pin-input').value = '';
-  document.getElementById('vault-lock-screen').classList.remove('hidden');
-  document.getElementById('vault-unlocked-screen').classList.add('hidden');
-  document.getElementById('vault-lock-msg').textContent = vaultPin ? 'Enter Vault PIN' : 'Set a 4-Digit Security PIN';
-};
-
-window.checkVaultPin = async function() {
-  const pinVal = document.getElementById('vault-pin-input').value.trim();
-  if(pinVal.length !== 4) { alert('Enter 4 digits'); return; }
-  
-  if(!vaultPin) {
-    // Set New Pin
-    await window._fb.setDoc(userDoc('meta','vault'), { pin: pinVal, note: '' }, { merge:true });
-    vaultUnlocked = true;
-    toast('Security PIN Set successfully!');
-    renderVault();
+// SECURE VAULT
+window.checkVaultPin = async function(){
+  const pin = document.getElementById('vault-pin-input').value.trim();
+  if(pin.length !== 4) return alert('Enter 4 digits');
+  if(!vaultPin){
+    await window._fb.setDoc(userDoc('meta','vault'), { pin }, { merge:true });
+    vaultUnlocked = true; toast('PIN set successfully!'); renderVaultUI();
   } else {
-    if(pinVal === vaultPin) {
-      vaultUnlocked = true;
-      renderVault();
-    } else {
-      alert('Wrong PIN!');
-    }
+    if(pin === vaultPin){ vaultUnlocked = true; renderVaultUI(); }
+    else alert('Wrong PIN!');
   }
 };
-
-window.renderVault = function() {
-  const lockMsg = document.getElementById('vault-lock-msg');
-  if(!vaultPin) {
-    lockMsg.textContent = currentLang === 'bn' ? 'একটি ৪-সংখ্যার সিকিউরিটি পিন সেট করুন' : 'Set a 4-Digit Security PIN';
-  } else {
-    lockMsg.textContent = currentLang === 'bn' ? 'সিকিউরিটি পিন দিন' : 'Enter Vault PIN';
-  }
-  
-  if(vaultUnlocked) {
+window.lockVault = function(){
+  vaultUnlocked = false; document.getElementById('vault-pin-input').value = ''; renderVaultUI();
+};
+function renderVaultUI(){
+  document.getElementById('vault-lock-msg').textContent = vaultPin ? 'Enter Vault Security PIN' : 'Set a 4-Digit Security PIN';
+  if(vaultUnlocked){
     document.getElementById('vault-lock-screen').classList.add('hidden');
     document.getElementById('vault-unlocked-screen').classList.remove('hidden');
-    document.getElementById('vault-textarea').value = vaultNote || '';
+    document.getElementById('vault-add-btn').classList.remove('hidden');
+    renderVaultNotes();
   } else {
     document.getElementById('vault-lock-screen').classList.remove('hidden');
     document.getElementById('vault-unlocked-screen').classList.add('hidden');
+    document.getElementById('vault-add-btn').classList.add('hidden');
   }
+}
+window.saveVaultNote = async function(){
+  const editId = document.getElementById('vault-edit-id').value;
+  const title = document.getElementById('vault-note-title').value.trim();
+  const content = document.getElementById('vault-note-content').value.trim();
+  if(!title || !content) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  if(editId){
+    await window._fb.updateDoc(userDoc('vault_notes', editId), { title, content, dateStr: dStr, timeStr: tStr });
+  } else {
+    await window._fb.addDoc(userCol('vault_notes'), { title, content, pinned: false, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  }
+  document.getElementById('vault-note-title').value=''; document.getElementById('vault-note-content').value=''; document.getElementById('vault-edit-id').value=''; closeAllModals(); toast('Note saved');
 };
+window.editVaultNote = function(id){
+  const note = vaultNotes.find(n=>n.id===id);
+  if(!note) return;
+  document.getElementById('vault-edit-id').value = note.id;
+  document.getElementById('vault-note-title').value = note.title;
+  document.getElementById('vault-note-content').value = note.content;
+  openModal('vault-note-modal');
+};
+function renderVaultNotes(){
+  const q = (document.getElementById('search-vault')?.value || '').toLowerCase();
+  const filtered = vaultNotes.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
+  document.getElementById('vault-notes-list').innerHTML = filtered.map(n=>`
+    <div class="glass rounded-2xl p-4 border border-red-500/20 space-y-2">
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-sm text-red-400">${escapeHtml(n.title)}</h4>
+        <div class="flex items-center gap-2">
+          <button onclick="editVaultNote('${n.id}')" class="text-xs text-mint-400"><i class="fa-solid fa-pen"></i></button>
+          <button onclick="moveToTrash('vault_notes','${n.id}')" class="text-xs text-gray-500"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <p class="text-xs leading-relaxed whitespace-pre-wrap">${escapeHtml(n.content)}</p>
+      <p class="text-[10px]" style="color:var(--text-3)">${n.dateStr} · ${n.timeStr}</p>
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No secret notes found.</p>`;
+}
+window.renderVaultNotes = renderVaultNotes;
 
-window.saveVaultNote = async function() {
-  const note = document.getElementById('vault-textarea').value;
-  await window._fb.updateDoc(userDoc('meta','vault'), { note });
-  toast('Secret note updated securely');
+// DOC & DRIVE HUB
+window.addDocHub = async function(){
+  const title = document.getElementById('doc-title').value.trim();
+  let url = document.getElementById('doc-url').value.trim();
+  const tag = document.getElementById('doc-tag').value.trim() || '#Document';
+  if(!title || !url) return;
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('dochub'), { title, url, tag, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('doc-title').value=''; document.getElementById('doc-url').value=''; document.getElementById('doc-tag').value=''; closeAllModals(); toast('Doc Link Saved');
 };
+function renderDocHub(){
+  document.getElementById('dochub-list').innerHTML = docHub.map(d=>`
+    <div class="glass rounded-xl p-3.5 flex items-center justify-between">
+      <div class="min-w-0 flex-1 pr-2">
+        <span class="text-[10px] font-bold text-blue-400 uppercase">${escapeHtml(d.tag)}</span>
+        <p class="text-sm font-bold truncate">${escapeHtml(d.title)}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="${d.url}" target="_blank" class="press px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>
+        <button onclick="moveToTrash('dochub','${d.id}')" class="text-xs text-gray-500 p-1"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No drive links saved yet.</p>`;
+}
+window.renderDocHub = renderDocHub;
+
+// CODE & PROMPT VAULT
+window.addSnippet = async function(){
+  const title = document.getElementById('snippet-title').value.trim();
+  const code = document.getElementById('snippet-code').value.trim();
+  if(!title || !code) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('snippets'), { title, code, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('snippet-title').value=''; document.getElementById('snippet-code').value=''; closeAllModals(); toast('Snippet Saved');
+};
+window.copySnippet = function(text){
+  navigator.clipboard.writeText(text); toast('Copied to clipboard!');
+};
+function renderSnippets(){
+  document.getElementById('snippets-list').innerHTML = snippets.map(s=>`
+    <div class="glass rounded-2xl p-4 space-y-2 border border-purple-500/20">
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-sm text-purple-400">${escapeHtml(s.title)}</h4>
+        <div class="flex items-center gap-2">
+          <button onclick="copySnippet(\`${escapeHtml(s.code)}\`)" class="press px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold"><i class="fa-solid fa-copy"></i> Copy</button>
+          <button onclick="moveToTrash('snippets','${s.id}')" class="text-xs text-gray-500"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <pre class="bg-black/40 rounded-xl p-3 text-xs font-mono overflow-x-auto text-gray-300 max-h-40">${escapeHtml(s.code)}</pre>
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No snippets saved.</p>`;
+}
+window.renderSnippets = renderSnippets;
+
+// WATCHLIST
+window.addWatchItem = async function(){
+  const title = document.getElementById('watch-title').value.trim();
+  const status = document.getElementById('watch-status').value;
+  const rating = document.getElementById('watch-rating').value;
+  if(!title) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('watchlist'), { title, status, rating, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('watch-title').value=''; closeAllModals(); toast('Watchlist item saved');
+};
+function renderWatchlist(){
+  document.getElementById('watch-list').innerHTML = watchlist.map(w=>`
+    <div class="glass rounded-xl p-3.5 flex items-center justify-between">
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-bold truncate">${escapeHtml(w.title)}</p>
+        <p class="text-[10px] uppercase font-semibold text-purple-400">${w.status || 'Plan'} · ${'⭐'.repeat(w.rating||5)}</p>
+      </div>
+      <button onclick="moveToTrash('watchlist','${w.id}')" class="text-xs text-gray-500"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">Watchlist is empty.</p>`;
+}
+window.renderWatchlist = renderWatchlist;
+
+// IDEAS & JOURNAL
+window.addIdea = async function(){
+  const v = document.getElementById('idea-input').value.trim(); if(!v) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('ideas'), { text: v, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('idea-input').value=''; toast('Idea saved');
+};
+function renderIdeas(){
+  document.getElementById('ideas-list').innerHTML = ideas.map(i=>`
+    <div class="flex items-start gap-3 field rounded-xl px-3.5 py-3">
+      <i class="fa-solid fa-lightbulb text-amber-400 text-sm mt-0.5"></i>
+      <div class="flex-1 min-w-0"><p class="text-sm">${escapeHtml(i.text)}</p></div>
+      <button onclick="moveToTrash('ideas','${i.id}')" class="text-xs text-gray-500"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `).join('');
+}
+window.renderIdeas = renderIdeas;
+
+window.saveJournal = async function(){
+  const v = document.getElementById('journal-input').value.trim(); if(!v) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('journal'), { text: v, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
+  document.getElementById('journal-input').value=''; toast('Journal saved');
+};
+function renderJournal(){
+  document.getElementById('journal-list').innerHTML = journalEntries.map(j=>`
+    <div class="glass rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-bold text-mint-400">${j.dateStr} · ${j.timeStr}</span>
+        <button onclick="moveToTrash('journal','${j.id}')" class="text-xs text-gray-500"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <p class="text-sm whitespace-pre-wrap">${escapeHtml(j.text)}</p>
+    </div>
+  `).join('');
+}
+window.renderJournal = renderJournal;
 
 // TRASH
 function renderTrash(){
-  document.getElementById('trash-list').innerHTML = trashItems.map(item=>{
-    let t = item.originalCollection;
-    return `
-    <div class="field rounded-xl p-3 flex flex-col gap-1.5 border-l-2 border-l-red-500">
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold uppercase text-red-400">${t}</span>
-        <span class="text-[10px]" style="color:var(--text-3)">Del: ${item.delDateStr||''} ${item.delTimeStr||''}</span>
+  document.getElementById('trash-list').innerHTML = trashItems.map(item=>`
+    <div class="field rounded-xl p-3 flex justify-between items-center border-l-2 border-l-red-500">
+      <div>
+        <span class="text-[10px] font-bold uppercase text-red-400">${item.originalCollection}</span>
+        <p class="text-xs text-gray-400">Del: ${item.delDateStr}</p>
       </div>
-      <div class="grid grid-cols-2 gap-2 mt-2">
-        <button onclick="restoreItem('${item.id}')" class="press py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Restore</button>
-        <button onclick="permanentlyDeleteItem('${item.id}')" class="press py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-trash"></i> Delete</button>
+      <div class="flex gap-2">
+        <button onclick="restoreItem('${item.id}')" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">Restore</button>
+        <button onclick="permanentlyDeleteItem('${item.id}')" class="px-2.5 py-1 rounded bg-red-500/20 text-red-400 text-xs font-bold">Delete</button>
       </div>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">Trash is empty.</p>`;
 }
-window.restoreItem = async function(id){ const r = userDoc('trash',id); const s = await window._fb.getDoc(r); if(s.exists()){ const d = s.data(); await window._fb.setDoc(userDoc(d.originalCollection, d.originalId), d.data); await window._fb.deleteDoc(r); toast('Restored'); } };
-window.permanentlyDeleteItem = async function(id){ if(confirm('Permanently delete?')){ await window._fb.deleteDoc(userDoc('trash',id)); toast('Deleted'); } };
+window.renderTrash = renderTrash;
 
-// FILTER BY DATE
-window.filterByDate = function() {
-  const dateVal = document.getElementById('filter-date').value; 
+window.restoreItem = async function(id){
+  const r = userDoc('trash',id); const s = await window._fb.getDoc(r);
+  if(s.exists()){ const d = s.data(); await window._fb.setDoc(userDoc(d.originalCollection, d.originalId), d.data); await window._fb.deleteDoc(r); toast('Restored'); }
+};
+window.permanentlyDeleteItem = async function(id){
+  if(confirm('Delete permanently?')){ await window._fb.deleteDoc(userDoc('trash',id)); toast('Deleted'); }
+};
+
+// DATE FILTER
+window.filterByDate = function(){
+  const dateVal = document.getElementById('filter-date').value;
   const resDiv = document.getElementById('filter-results');
-  if(!dateVal) { resDiv.classList.add('hidden'); return; }
-  
-  const results = [];
-  
-  const isMatch = (doc) => {
-    if(doc.isoDate && doc.isoDate === dateVal) return true;
-    if(!doc.createdAt) return false;
-    const d = doc.createdAt.toDate ? doc.createdAt.toDate() : new Date(doc.createdAt);
-    const iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    return iso === dateVal;
-  };
-
-  transactions.forEach(t => { if(isMatch(t)) results.push({ type: 'Transaction', text: `${t.type==='income'?'+':'-'}${t.amount} (${t.category})`, time: t.timeStr }) });
-  studies.forEach(s => { if(isMatch(s)) results.push({ type: 'Study', text: s.subject, time: s.timeStr }) });
-  microIncomes.forEach(m => { if(isMatch(m)) results.push({ type: 'Micro Job', text: `+${m.amount}`, time: m.timeStr }) });
-  debts.forEach(d => { if(isMatch(d)) results.push({ type: 'Debt', text: `${d.person} (${d.amount})`, time: d.timeStr }) });
-  ideas.forEach(i => { if(isMatch(i)) results.push({ type: 'Idea', text: i.text, time: i.timeStr }) });
-  watchlist.forEach(w => { if(isMatch(w)) results.push({ type: 'Watchlist', text: w.title, time: w.timeStr }) });
-  links.forEach(l => { if(isMatch(l)) results.push({ type: 'Link', text: l.title, time: l.timeStr }) });
-  journalEntries.forEach(j => { if(isMatch(j)) results.push({ type: 'Journal', text: j.text.substring(0,30)+'...', time: j.timeStr }) });
-  relapses.forEach(r => { if(isMatch(r)) results.push({ type: 'Recovery Relapse', text: `${r.reason}${r.note?' - '+r.note:''}`, time: r.timeStr }) });
-  
-  goals.forEach(g => { 
-    (g.history||[]).forEach(h => {
-       if(h.isoDate === dateVal) results.push({ type: 'Goal Fund', text: `${g.name}: +${h.amount}`, time: h.timeStr });
-    });
+  if(!dateVal){ resDiv.classList.add('hidden'); return; }
+  const matches = [];
+  [...links, ...ideas, ...journalEntries, ...watchlist, ...docHub, ...snippets].forEach(i=>{
+    if(i.isoDate === dateVal) matches.push(i);
   });
-  savings.forEach(g => { 
-    (g.history||[]).forEach(h => {
-       if(h.isoDate === dateVal) results.push({ type: 'Savings Fund', text: `${g.name}: +${h.amount}`, time: h.timeStr });
-    });
-  });
-
   resDiv.classList.remove('hidden');
-  if(results.length === 0) {
-    resDiv.innerHTML = `<p class="text-xs text-center py-4 text-gray-500">${TRANSLATIONS[currentLang].noActivityOnDate}</p>`;
-  } else {
-    resDiv.innerHTML = results.map(r => `
-      <div class="glass rounded-xl px-3 py-2.5 flex justify-between items-center">
-        <div class="min-w-0 flex-1 pr-3">
-          <p class="text-[10px] font-bold text-mint-500 uppercase">${r.type}</p>
-          <p class="text-sm truncate">${escapeHtml(r.text)}</p>
-        </div>
-        <span class="text-[10px] text-gray-500 shrink-0">${r.time || ''}</span>
-      </div>
-    `).join('');
-  }
+  resDiv.innerHTML = matches.map(m=>`
+    <div class="glass rounded-xl p-2.5 text-xs flex justify-between items-center">
+      <span class="font-bold truncate">${escapeHtml(m.title || m.text)}</span>
+      <span class="text-[10px] text-gray-500">${m.timeStr || ''}</span>
+    </div>
+  `).join('') || `<p class="text-xs text-center text-gray-500 py-2">No activity on this date.</p>`;
 };
 
-// SEARCH
-window.handleGlobalSearch = function(){
-  const q = document.getElementById('global-search').value.trim().toLowerCase();
-  const res = document.getElementById('search-results');
-  const grid = document.getElementById('tools-grid');
-  if(!q){ res.classList.add('hidden'); grid.classList.remove('hidden'); return; }
-  grid.classList.add('hidden'); res.classList.remove('hidden');
-  const out = [];
-  ideas.forEach(i=>{ if((i.text||'').toLowerCase().includes(q)) out.push({type:'Idea', text:i.text}); });
-  links.forEach(l=>{ if((l.title||'').toLowerCase().includes(q)) out.push({type:'Link', text:l.title}); });
-  res.innerHTML = out.map(r=>`<div class="glass rounded-2xl px-3.5 py-3"><p class="text-[10px] font-bold uppercase text-mint-500">${r.type}</p><p class="text-sm truncate">${escapeHtml(r.text)}</p></div>`).join('') || '<p class="text-xs text-center">No matches</p>';
-};
-
-// SETTINGS & BACKUP
-window.exportBackup = async function(){ toast('Preparing...'); try{ const bk={user:currentUser.email, data:{}}; for(const c of ['transactions','relapses','studies','micro_sites','micro_incomes','goals','savings','debts','ideas','watchlist','links','journal','trash']){ const s=await window._fb.getDocs(userCol(c)); bk.data[c]=s.docs.map(d=>{ const dat=d.data(); for(const k in dat){ if(dat[k]&&dat[k].toDate)dat[k]=dat[k].toDate().toISOString(); } return {id:d.id, ...dat}; }); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(bk)],{type:'application/json'})); a.download=`nexus-${todayStr()}.json`; a.click(); toast('Downloaded'); }catch(e){} };
-window.importBackup = async function(e){ const f=e.target.files[0]; if(!f||!confirm('Restore?'))return; try{ const bk=JSON.parse(await f.text()); const batch=window._fb.writeBatch(window._fb.db); for(const c in bk.data){ bk.data[c].forEach(i=>{ const {id,...r}=i; batch.set(userDoc(c,id),r,{merge:true}); }); } await batch.commit(); toast('Imported!'); }catch(er){} e.target.value=''; };
-
-// LANGUAGE & THEME
-window.toggleLanguage = function(){ currentLang = currentLang==='en'?'bn':'en'; localStorage.setItem('nexus-lang', currentLang); applyLanguage(); };
-function applyLanguage(){
-  document.querySelectorAll('.lang-str').forEach(e=>{ if(TRANSLATIONS[currentLang][e.dataset.key]) e.textContent = TRANSLATIONS[currentLang][e.dataset.key]; });
-  document.querySelectorAll('.lang-ph').forEach(e=>{ if(TRANSLATIONS[currentLang][e.dataset.key]) e.placeholder = TRANSLATIONS[currentLang][e.dataset.key]; });
-  document.getElementById('lang-btn-text').textContent = currentLang==='en'?'English':'বাংলা';
-  document.getElementById('home-date').textContent = new Date().toLocaleDateString(currentLang==='bn'?'bn-BD':'en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  renderHome(); renderTxnCategories(); renderRecovery(); renderStudies(); renderDebts(); filterByDate(); renderLinks(); renderVault();
+// THEME & BACKUP
+window.toggleTheme = function(){ const n=!document.documentElement.classList.contains('light'); applyTheme(n); };
+function applyTheme(light){
+  document.documentElement.classList.toggle('dark',!light); document.documentElement.classList.toggle('light',light);
+  document.getElementById('theme-thumb').style.transform = light?'translateX(20px)':'translateX(0)';
 }
-window.toggleTheme = function(){ const n=!document.documentElement.classList.contains('light'); localStorage.setItem('nexus-theme', n?'light':'dark'); applyTheme(n); };
-function applyTheme(light){ document.documentElement.classList.toggle('dark',!light); document.documentElement.classList.toggle('light',light); document.getElementById('theme-thumb').style.transform = light?'translateX(20px)':'translateX(0)'; document.getElementById('theme-switch').style.background = light?'#10ff9c':'rgba(120,140,135,0.25)'; }
-(function initTheme(){ applyTheme(localStorage.getItem('nexus-theme')==='light'); })();
 
-// Init
-setTxnType('expense'); renderTxnCategories(); switchTab('home');
+window.exportBackup = async function(){
+  toast('Preparing Backup...');
+  try{
+    const bk = { user: currentUser.email, data: {} };
+    for(const c of ['links','watchlist','ideas','journal','dochub','snippets','vault_notes','trash']){
+      const s = await window._fb.getDocs(userCol(c));
+      bk.data[c] = s.docs.map(d=>({ id: d.id, ...d.data() }));
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(bk)],{type:'application/json'}));
+    a.download = `nexus-backup-${APP_CREATION_DATE}.json`;
+    a.click(); toast('Backup Downloaded!');
+  }catch(e){}
+};
+
+window.importBackup = async function(e){
+  const f = e.target.files[0]; if(!f || !confirm('Import backup data?')) return;
+  try{
+    const bk = JSON.parse(await f.text());
+    const batch = window._fb.writeBatch(window._fb.db);
+    for(const c in bk.data){
+      bk.data[c].forEach(i=>{ const {id,...r} = i; batch.set(userDoc(c,id), r, {merge:true}); });
+    }
+    await batch.commit(); toast('Backup Imported Successfully!');
+  }catch(er){}
+};
+
+// INIT
+switchTab('home');
 </script>
 </body>
 </html>
