@@ -107,6 +107,9 @@
   #toast-wrap{ position:fixed; top: max(16px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center; }
   .toast{ animation: toastIn .3s ease; }
   @keyframes toastIn{ from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);} }
+
+  .cat-chip{ transition: all 0.2s ease; white-space: nowrap; }
+  .cat-chip.active{ background: #10ff9c; color: #04140d; font-weight: 700; }
 </style>
 </head>
 <body class="text-[15px]">
@@ -158,13 +161,13 @@
   </div>
 </div>
 
-<!-- MAIN APP APP ROOT -->
+<!-- MAIN APP ROOT -->
 <div id="app-root" class="app-shell hidden">
   <div id="view-stack" class="pb-32">
 
     <!-- === VIEW: HOME === -->
     <section id="view-home" class="app-view active px-5 pt-6">
-      <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center justify-between mb-4">
         <div>
           <p class="text-xs" style="color:var(--text-3)" id="home-date"></p>
           <h1 class="text-xl font-extrabold mt-0.5">Hi, Supel 👋</h1>
@@ -172,6 +175,13 @@
         <div class="w-11 h-11 rounded-2xl glass grid place-items-center press" onclick="switchTab('settings')">
           <i class="fa-solid fa-user text-sm" style="color:var(--text-2)"></i>
         </div>
+      </div>
+
+      <!-- Universal Global Search Bar -->
+      <div class="relative mb-5">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-xs text-mint-400"></i>
+        <input id="global-search-input" oninput="performGlobalSearch()" type="text" placeholder="Search Bookmarks, Code, Ideas, Journal..." class="field w-full rounded-2xl pl-10 pr-4 py-3.5 text-xs font-medium border-mint-500/30" />
+        <div id="global-search-results" class="mt-2 glass-strong rounded-2xl p-3 hidden space-y-2 border border-mint-500/20"></div>
       </div>
 
       <!-- App Age & Active Days Counter -->
@@ -229,16 +239,27 @@
     <!-- === VIEW: BOOKMARKS === -->
     <section id="view-bookmarks" class="app-view px-5 pt-6">
       <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl font-extrabold">Bookmarks & Links</h1>
-        <button onclick="openModal('link-modal')" class="press px-3.5 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950 flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add Link</button>
+        <h1 class="text-xl font-extrabold">Bookmarks Hub</h1>
+        <button onclick="openLinkModal()" class="press px-3.5 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950 flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add Link</button>
       </div>
       
-      <div class="relative mb-4">
+      <div class="relative mb-3">
         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text-3)"></i>
-        <input id="search-links" oninput="renderLinks()" type="text" placeholder="Search bookmarks..." class="field w-full rounded-2xl pl-10 pr-4 py-3 text-sm" />
+        <input id="search-links" oninput="renderLinks()" type="text" placeholder="Search bookmarks inside section..." class="field w-full rounded-2xl pl-10 pr-4 py-3 text-sm" />
       </div>
 
-      <div id="links-list" class="space-y-2.5"></div>
+      <!-- Top Main Categories Filter Chips -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 text-xs scrollbar-none">
+        <button onclick="filterBookmarkCategory('all')" id="cat-chip-all" class="cat-chip active px-3 py-1.5 rounded-xl glass font-semibold">🌐 All Links</button>
+        <button onclick="filterBookmarkCategory('social')" id="cat-chip-social" class="cat-chip px-3 py-1.5 rounded-xl glass font-semibold text-blue-400"><i class="fa-solid fa-share-nodes mr-1"></i>Social Media</button>
+        <button onclick="filterBookmarkCategory('shortener')" id="cat-chip-shortener" class="cat-chip px-3 py-1.5 rounded-xl glass font-semibold text-purple-400"><i class="fa-solid fa-scissors mr-1"></i>URL Shorteners</button>
+        <button onclick="filterBookmarkCategory('apps')" id="cat-chip-apps" class="cat-chip px-3 py-1.5 rounded-xl glass font-semibold text-amber-400"><i class="fa-brands fa-google-play mr-1"></i>Apps & Stores</button>
+        <button onclick="filterBookmarkCategory('drive')" id="cat-chip-drive" class="cat-chip px-3 py-1.5 rounded-xl glass font-semibold text-emerald-400"><i class="fa-solid fa-folder-open mr-1"></i>Drive & Docs</button>
+        <button onclick="filterBookmarkCategory('other')" id="cat-chip-other" class="cat-chip px-3 py-1.5 rounded-xl glass font-semibold text-gray-400">🌐 Other</button>
+      </div>
+
+      <!-- Folders Grid & Links Container -->
+      <div id="links-list"></div>
     </section>
 
     <!-- === VIEW: SECURE VAULT (NOTEPAD APP) === -->
@@ -261,7 +282,7 @@
       <!-- Unlocked Full Notepad App -->
       <div id="vault-unlocked-screen" class="hidden space-y-3">
         <div class="flex items-center gap-2 mb-2">
-          <input id="search-vault" oninput="renderVaultNotes()" type="text" placeholder="Search secret notes..." class="field flex-1 rounded-xl px-3.5 py-2 text-xs" />
+          <input id="search-vault" oninput="renderVaultNotes()" type="text" placeholder="Search secret notes inside Vault..." class="field flex-1 rounded-xl px-3.5 py-2 text-xs" />
           <button onclick="lockVault()" class="press px-3 py-2 rounded-xl text-xs font-bold bg-white/10 text-red-400">Lock</button>
         </div>
         <div id="vault-notes-list" class="space-y-2.5"></div>
@@ -273,12 +294,6 @@
       <h1 class="text-xl font-extrabold mb-4">Command Tools</h1>
 
       <div class="grid grid-cols-2 gap-3 mb-6">
-        <!-- Doc & Drive Hub -->
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-dochub')">
-          <div class="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center text-blue-400"><i class="fa-solid fa-folder-closed"></i></div>
-          <span class="text-xs font-bold">Doc & Drive Hub</span>
-        </button>
-
         <!-- Code & Prompt Vault -->
         <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-snippets')">
           <div class="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center text-purple-400"><i class="fa-solid fa-code"></i></div>
@@ -292,7 +307,7 @@
         </button>
 
         <!-- Idea Dump -->
-        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press" onclick="openSubView('view-ideas')">
+        <button class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center press col-span-2" onclick="openSubView('view-ideas')">
           <div class="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center text-amber-400"><i class="fa-solid fa-lightbulb"></i></div>
           <span class="text-xs font-bold">Idea Dump</span>
         </button>
@@ -363,18 +378,6 @@
     </section>
 
     <!-- ================= SUB-VIEWS ================= -->
-
-    <!-- SUB: Doc & Drive Hub -->
-    <section id="view-dochub" class="app-view px-5 pt-6">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <button onclick="closeSubView()" class="press w-10 h-10 rounded-xl glass flex justify-center items-center"><i class="fa-solid fa-arrow-left"></i></button>
-          <h1 class="text-xl font-extrabold">Doc & Drive Hub</h1>
-        </div>
-        <button onclick="openModal('dochub-modal')" class="press px-3 py-1.5 rounded-xl text-xs font-bold bg-mint-500 text-gray-950">+ Add Doc</button>
-      </div>
-      <div id="dochub-list" class="space-y-2.5"></div>
-    </section>
 
     <!-- SUB: Code & Prompt Vault -->
     <section id="view-snippets" class="app-view px-5 pt-6">
@@ -449,12 +452,23 @@
 
 <!-- MODALS -->
 
-<!-- Modal: Add Link -->
+<!-- Modal: Add / Edit Link -->
 <div id="link-modal" class="sheet glass-strong rounded-t-[28px] p-5">
-  <h3 class="font-bold text-lg mb-4">Add Bookmark</h3>
+  <h3 class="font-bold text-lg mb-4" id="link-modal-title">Add Bookmark</h3>
+  <input type="hidden" id="link-edit-id" />
   <input id="link-title" type="text" placeholder="Title..." class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
-  <input id="link-url" type="url" placeholder="https://..." class="field w-full rounded-xl px-4 py-3 text-sm mb-5" />
-  <button onclick="addLink()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Link</button>
+  <input id="link-url" type="url" placeholder="https://..." class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
+  
+  <select id="link-category" class="field w-full rounded-xl px-4 py-3 text-sm mb-5">
+    <option value="auto">⚡ Auto Detect Category & Folder</option>
+    <option value="social">📲 Social Media</option>
+    <option value="shortener">🔗 URL Shorteners</option>
+    <option value="apps">📱 Apps & Stores</option>
+    <option value="drive">📁 Drive & Cloud Docs</option>
+    <option value="other">🌐 Other Website</option>
+  </select>
+
+  <button onclick="saveLink()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Link</button>
   <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
 </div>
 
@@ -465,16 +479,6 @@
   <input id="vault-note-title" type="text" placeholder="Note Title..." class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
   <textarea id="vault-note-content" rows="6" placeholder="Write secret note here..." class="field w-full rounded-xl p-4 text-sm resize-none mb-4"></textarea>
   <button onclick="saveVaultNote()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Secret Note</button>
-  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
-</div>
-
-<!-- Modal: Add Doc Hub -->
-<div id="dochub-modal" class="sheet glass-strong rounded-t-[28px] p-5">
-  <h3 class="font-bold text-lg mb-3">Add Drive / Doc Link</h3>
-  <input id="doc-title" type="text" placeholder="Document Title (e.g. NID Card)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
-  <input id="doc-url" type="url" placeholder="Drive URL (https://...)" class="field w-full rounded-xl px-4 py-3 text-sm mb-3" />
-  <input id="doc-tag" type="text" placeholder="Tag (e.g. #Identity, #Certificate)" class="field w-full rounded-xl px-4 py-3 text-sm mb-5" />
-  <button onclick="addDocHub()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Save Doc Link</button>
   <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
 </div>
 
@@ -546,8 +550,58 @@ window._fb = { auth, db, collection, addDoc, doc, setDoc, getDoc, getDocs, delet
 let currentUser = null;
 let unsubscribers = [];
 
-let links = [], watchlist = [], ideas = [], journalEntries = [], docHub = [], snippets = [], vaultNotes = [], trashItems = [];
+let links = [], watchlist = [], ideas = [], journalEntries = [], snippets = [], vaultNotes = [], trashItems = [];
 let vaultUnlocked = false, vaultPin = null;
+
+let activeCategory = 'all';
+let activeFolder = null; // null = viewing folders, 'facebook' = inside facebook folder
+
+// SUB-SERVICES & FOLDER DEFINITIONS
+const SUB_CATEGORIES = {
+  social: [
+    { id: 'facebook', name: 'Facebook', icon: 'fa-brands fa-facebook text-blue-500' },
+    { id: 'youtube', name: 'YouTube', icon: 'fa-brands fa-youtube text-red-500' },
+    { id: 'instagram', name: 'Instagram', icon: 'fa-brands fa-instagram text-pink-500' },
+    { id: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok text-cyan-400' },
+    { id: 'twitter', name: 'Twitter / X', icon: 'fa-brands fa-x-twitter text-white' },
+    { id: 'linkedin', name: 'LinkedIn', icon: 'fa-brands fa-linkedin text-blue-400' },
+    { id: 'pinterest', name: 'Pinterest', icon: 'fa-brands fa-pinterest text-red-400' },
+    { id: 'reddit', name: 'Reddit', icon: 'fa-brands fa-reddit text-orange-500' },
+    { id: 'messenger', name: 'WhatsApp & Telegram', icon: 'fa-brands fa-whatsapp text-emerald-400' },
+    { id: 'other_social', name: 'Other Social Links', icon: 'fa-solid fa-users text-gray-400' }
+  ],
+  shortener: [
+    { id: 'cuttly', name: 'Cutt.ly', icon: 'fa-solid fa-scissors text-purple-400' },
+    { id: 'bitly', name: 'Bitly', icon: 'fa-solid fa-link text-orange-400' },
+    { id: 'tinyurl', name: 'TinyURL', icon: 'fa-solid fa-compress text-blue-400' },
+    { id: 'isgd', name: 'Is.gd', icon: 'fa-solid fa-circle-dot text-mint-400' },
+    { id: 'rbgy', name: 'Rb.gy', icon: 'fa-solid fa-paperclip text-amber-400' },
+    { id: 'rebrandly', name: 'Rebrandly', icon: 'fa-solid fa-tag text-emerald-400' },
+    { id: 'shorturl', name: 'ShortURL', icon: 'fa-solid fa-share text-cyan-400' },
+    { id: 'other_shortener', name: 'Other Shorteners', icon: 'fa-solid fa-globe text-gray-400' }
+  ],
+  apps: [
+    { id: 'playstore', name: 'Google Play Store', icon: 'fa-brands fa-google-play text-amber-400' },
+    { id: 'appstore', name: 'Apple App Store', icon: 'fa-brands fa-apple text-gray-300' },
+    { id: 'apkpure', name: 'APKPure', icon: 'fa-solid fa-box-open text-emerald-400' },
+    { id: 'apkmirror', name: 'APKMirror', icon: 'fa-solid fa-download text-orange-400' },
+    { id: 'github', name: 'GitHub Releases', icon: 'fa-brands fa-github text-purple-400' },
+    { id: 'fdroid', name: 'F-Droid', icon: 'fa-solid fa-robot text-blue-400' },
+    { id: 'uptodown', name: 'Uptodown', icon: 'fa-solid fa-arrow-down-to-bracket text-teal-400' },
+    { id: 'other_apps', name: 'Other App Sites', icon: 'fa-solid fa-cubes text-gray-400' }
+  ],
+  drive: [
+    { id: 'gdrive', name: 'Google Drive', icon: 'fa-brands fa-google-drive text-amber-400' },
+    { id: 'gdocs', name: 'Google Docs / Sheets', icon: 'fa-solid fa-file-lines text-blue-400' },
+    { id: 'onedrive', name: 'OneDrive', icon: 'fa-solid fa-cloud text-cyan-400' },
+    { id: 'mega', name: 'MEGA Drive', icon: 'fa-solid fa-database text-red-500' },
+    { id: 'dropbox', name: 'Dropbox', icon: 'fa-brands fa-dropbox text-blue-500' },
+    { id: 'other_drive', name: 'Other Cloud Storage', icon: 'fa-solid fa-folder text-gray-400' }
+  ],
+  other: [
+    { id: 'other', name: 'General Links', icon: 'fa-solid fa-globe text-mint-400' }
+  ]
+};
 
 function userCol(name){ return window._fb.collection(window._fb.db, 'users', currentUser.uid, name); }
 function userDoc(name, id){ return window._fb.doc(window._fb.db, 'users', currentUser.uid, name, id); }
@@ -601,7 +655,6 @@ function attachListeners(){
   unsubscribers.push(window._fb.onSnapshot(qs('watchlist'), s=>{ watchlist = s.docs.map(d=>({id:d.id,...d.data()})); renderWatchlist(); updateStats(); }));
   unsubscribers.push(window._fb.onSnapshot(qs('ideas'), s=>{ ideas = s.docs.map(d=>({id:d.id,...d.data()})); renderIdeas(); renderFlashback(); }));
   unsubscribers.push(window._fb.onSnapshot(qs('journal'), s=>{ journalEntries = s.docs.map(d=>({id:d.id,...d.data()})); renderJournal(); renderFlashback(); }));
-  unsubscribers.push(window._fb.onSnapshot(qs('dochub'), s=>{ docHub = s.docs.map(d=>({id:d.id,...d.data()})); renderDocHub(); }));
   unsubscribers.push(window._fb.onSnapshot(qs('snippets'), s=>{ snippets = s.docs.map(d=>({id:d.id,...d.data()})); renderSnippets(); }));
   unsubscribers.push(window._fb.onSnapshot(qs('vault_notes'), s=>{ vaultNotes = s.docs.map(d=>({id:d.id,...d.data()})); renderVaultNotes(); updateStats(); }));
   unsubscribers.push(window._fb.onSnapshot(window._fb.query(userCol('trash'), window._fb.orderBy('deletedAt','desc')), s=>{ trashItems = s.docs.map(d=>({id:d.id,...d.data()})); renderTrash(); }));
@@ -611,6 +664,113 @@ function attachListeners(){
     renderVaultUI();
   }));
 }
+
+// UNIVERSAL GLOBAL SEARCH (SECURITY GUARANTEE: EXCLUDES SECURE VAULT NOTES)
+window.performGlobalSearch = function(){
+  const q = (document.getElementById('global-search-input')?.value || '').trim().toLowerCase();
+  const resContainer = document.getElementById('global-search-results');
+  
+  if (!q) {
+    resContainer.classList.add('hidden');
+    resContainer.innerHTML = '';
+    return;
+  }
+
+  resContainer.classList.remove('hidden');
+  let results = [];
+
+  // 1. Bookmarks (links)
+  links.forEach(l => {
+    if ((l.title || '').toLowerCase().includes(q) || (l.url || '').toLowerCase().includes(q)) {
+      results.push({
+        type: 'Bookmark',
+        icon: 'fa-solid fa-bookmark text-mint-400',
+        title: l.title,
+        sub: l.dateStr + ' · ' + l.timeStr,
+        actionHtml: `<a href="${l.url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-mint-500/20 text-mint-400 text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open</a>`
+      });
+    }
+  });
+
+  // 2. Code Snippets
+  snippets.forEach(s => {
+    if ((s.title || '').toLowerCase().includes(q) || (s.code || '').toLowerCase().includes(q)) {
+      results.push({
+        type: 'Code / Prompt',
+        icon: 'fa-solid fa-code text-purple-400',
+        title: s.title,
+        sub: s.dateStr + ' · ' + s.timeStr,
+        actionHtml: `<button onclick="copySnippet(\`${escapeHtml(s.code)}\`)" class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold"><i class="fa-solid fa-copy text-[10px]"></i> Copy</button>`
+      });
+    }
+  });
+
+  // 3. Watchlist
+  watchlist.forEach(w => {
+    if ((w.title || '').toLowerCase().includes(q)) {
+      results.push({
+        type: 'Watchlist',
+        icon: 'fa-solid fa-film text-red-400',
+        title: w.title,
+        sub: (w.status || 'Plan') + ' · ' + ('⭐'.repeat(w.rating||5)),
+        actionHtml: `<span class="text-[10px] text-purple-400 font-semibold uppercase">Watchlist</span>`
+      });
+    }
+  });
+
+  // 4. Ideas
+  ideas.forEach(i => {
+    if ((i.text || '').toLowerCase().includes(q)) {
+      results.push({
+        type: 'Idea',
+        icon: 'fa-solid fa-lightbulb text-amber-400',
+        title: i.text,
+        sub: i.dateStr + ' · ' + i.timeStr,
+        actionHtml: `<span class="text-[10px] text-amber-400 font-semibold uppercase">Idea</span>`
+      });
+    }
+  });
+
+  // 5. Journal
+  journalEntries.forEach(j => {
+    if ((j.text || '').toLowerCase().includes(q)) {
+      results.push({
+        type: 'Journal',
+        icon: 'fa-solid fa-book-open text-emerald-400',
+        title: j.text.substring(0, 50) + (j.text.length > 50 ? '...' : ''),
+        sub: j.dateStr + ' · ' + j.timeStr,
+        actionHtml: `<span class="text-[10px] text-emerald-400 font-semibold uppercase">Journal</span>`
+      });
+    }
+  });
+
+  // NOTE: Locked Vault Notes (vaultNotes) are EXCLUDED for 100% Privacy & PIN Protection!
+
+  if (results.length === 0) {
+    resContainer.innerHTML = `<p class="text-xs text-center py-3" style="color:var(--text-3)">No matching items found.</p>`;
+    return;
+  }
+
+  resContainer.innerHTML = `
+    <div class="text-[10px] font-bold text-mint-400 uppercase tracking-wider mb-2">Search Results (${results.length})</div>
+    <div class="space-y-2 max-h-72 overflow-y-auto pr-1">
+      ${results.map(r => `
+        <div class="glass p-3 rounded-xl flex items-center justify-between gap-3 border border-white/5">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <i class="${r.icon} text-sm shrink-0"></i>
+            <div class="min-w-0">
+              <p class="text-xs font-bold truncate">${escapeHtml(r.title)}</p>
+              <p class="text-[9px] mt-0.5" style="color:var(--text-3)">${escapeHtml(r.type)} · ${escapeHtml(r.sub)}</p>
+            </div>
+          </div>
+          <div class="shrink-0">
+            ${r.actionHtml}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+};
 
 // COUNTERS SYSTEM
 async function updateAppCounters(){
@@ -718,36 +878,244 @@ function renderFlashback(){
   }
 }
 
-// BOOKMARKS
-window.addLink = async function(){
+// DETECT CATEGORY & SUB-CATEGORY FROM DOMAIN
+function detectCategoryAndSubcategory(url){
+  const u = (url || '').toLowerCase();
+
+  // 1. SOCIAL MEDIA
+  if (u.includes('facebook.com') || u.includes('fb.watch') || u.includes('fb.com') || u.includes('m.facebook.com')) return { cat: 'social', sub: 'facebook' };
+  if (u.includes('youtube.com') || u.includes('youtu.be')) return { cat: 'social', sub: 'youtube' };
+  if (u.includes('instagram.com') || u.includes('instagr.am')) return { cat: 'social', sub: 'instagram' };
+  if (u.includes('tiktok.com')) return { cat: 'social', sub: 'tiktok' };
+  if (u.includes('twitter.com') || u.includes('x.com')) return { cat: 'social', sub: 'twitter' };
+  if (u.includes('linkedin.com')) return { cat: 'social', sub: 'linkedin' };
+  if (u.includes('pinterest.com') || u.includes('pin.it')) return { cat: 'social', sub: 'pinterest' };
+  if (u.includes('reddit.com') || u.includes('redd.it')) return { cat: 'social', sub: 'reddit' };
+  if (u.includes('whatsapp.com') || u.includes('wa.me') || u.includes('telegram.org') || u.includes('t.me')) return { cat: 'social', sub: 'messenger' };
+
+  // 2. SHORTENERS
+  if (u.includes('cutt.ly')) return { cat: 'shortener', sub: 'cuttly' };
+  if (u.includes('bit.ly') || u.includes('bitly.com')) return { cat: 'shortener', sub: 'bitly' };
+  if (u.includes('tinyurl.com')) return { cat: 'shortener', sub: 'tinyurl' };
+  if (u.includes('is.gd')) return { cat: 'shortener', sub: 'isgd' };
+  if (u.includes('rb.gy')) return { cat: 'shortener', sub: 'rbgy' };
+  if (u.includes('rebrand.ly') || u.includes('rebrandly.com')) return { cat: 'shortener', sub: 'rebrandly' };
+  if (u.includes('shorturl.at')) return { cat: 'shortener', sub: 'shorturl' };
+  if (u.includes('v.gd') || u.includes('tiny.cc') || u.includes('ow.ly') || u.includes('shorte.st')) return { cat: 'shortener', sub: 'other_shortener' };
+
+  // 3. APPS & STORES
+  if (u.includes('play.google.com')) return { cat: 'apps', sub: 'playstore' };
+  if (u.includes('apps.apple.com')) return { cat: 'apps', sub: 'appstore' };
+  if (u.includes('apkpure.com')) return { cat: 'apps', sub: 'apkpure' };
+  if (u.includes('apkmirror.com')) return { cat: 'apps', sub: 'apkmirror' };
+  if (u.includes('github.com')) return { cat: 'apps', sub: 'github' };
+  if (u.includes('f-droid.org')) return { cat: 'apps', sub: 'fdroid' };
+  if (u.includes('uptodown.com')) return { cat: 'apps', sub: 'uptodown' };
+
+  // 4. DRIVE & DOCS
+  if (u.includes('drive.google.com')) return { cat: 'drive', sub: 'gdrive' };
+  if (u.includes('docs.google.com') || u.includes('sheets.google.com') || u.includes('slides.google.com') || u.includes('forms.google.com')) return { cat: 'drive', sub: 'gdocs' };
+  if (u.includes('onedrive.live.com') || u.includes('1drv.ms') || u.includes('sharepoint.com')) return { cat: 'drive', sub: 'onedrive' };
+  if (u.includes('mega.nz') || u.includes('mega.co.nz')) return { cat: 'drive', sub: 'mega' };
+  if (u.includes('dropbox.com')) return { cat: 'drive', sub: 'dropbox' };
+
+  // DEFAULT
+  return { cat: 'other', sub: 'other' };
+}
+
+window.openLinkModal = function(){
+  document.getElementById('link-modal-title').textContent = 'Add Bookmark';
+  document.getElementById('link-edit-id').value = '';
+  document.getElementById('link-title').value = '';
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-category').value = 'auto';
+  openModal('link-modal');
+};
+
+window.editLink = function(id){
+  const item = links.find(l => l.id === id);
+  if(!item) return;
+  document.getElementById('link-modal-title').textContent = 'Edit Bookmark';
+  document.getElementById('link-edit-id').value = item.id;
+  document.getElementById('link-title').value = item.title;
+  document.getElementById('link-url').value = item.url;
+  document.getElementById('link-category').value = item.category || 'auto';
+  openModal('link-modal');
+};
+
+window.saveLink = async function(){
+  const editId = document.getElementById('link-edit-id').value;
   const t = document.getElementById('link-title').value.trim();
   let u = document.getElementById('link-url').value.trim();
-  if(!t || !u) return;
+  let catSelect = document.getElementById('link-category').value;
+
+  if(!t || !u) return alert('Title & URL required!');
   if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+
+  let detected = detectCategoryAndSubcategory(u);
+  let finalCat = catSelect === 'auto' ? detected.cat : catSelect;
+  let finalSub = detected.sub;
+
   const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('links'), { title: t, url: u, pinned: false, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('link-title').value=''; document.getElementById('link-url').value=''; closeAllModals(); toast('Bookmark saved');
+
+  if(editId){
+    await window._fb.updateDoc(userDoc('links', editId), { title: t, url: u, category: finalCat, subCategory: finalSub });
+    toast('Bookmark updated');
+  } else {
+    await window._fb.addDoc(userCol('links'), { 
+      title: t, 
+      url: u, 
+      category: finalCat,
+      subCategory: finalSub,
+      pinned: false, 
+      dateStr: dStr, 
+      timeStr: tStr, 
+      isoDate, 
+      createdAt: window._fb.serverTimestamp() 
+    });
+    toast('Bookmark saved');
+  }
+
+  document.getElementById('link-title').value=''; 
+  document.getElementById('link-url').value=''; 
+  document.getElementById('link-edit-id').value='';
+  closeAllModals(); 
 };
+
 window.togglePinLink = async function(id, cur){
   await window._fb.updateDoc(userDoc('links', id), { pinned: !cur });
 };
 
+window.filterBookmarkCategory = function(cat){
+  activeCategory = cat;
+  activeFolder = null; // Reset folder selection when category changes
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  const chip = document.getElementById('cat-chip-' + cat);
+  if(chip) chip.classList.add('active');
+  renderLinks();
+};
+
+window.openFolder = function(folderId){
+  activeFolder = folderId;
+  renderLinks();
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+window.closeFolder = function(){
+  activeFolder = null;
+  renderLinks();
+};
+
+// RENDER SINGLE LINK CARD (NO RAW URL SHOWN, OPEN BUTTON ONLY)
+function renderSingleLinkCard(l){
+  return `
+    <div class="glass rounded-xl p-3 border ${l.pinned ? 'border-mint-500/40 bg-mint-500/5' : 'border-white/5'} space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-bold truncate flex items-center gap-1.5">
+            ${l.pinned ? '<span class="text-mint-400 text-xs">📌</span>' : ''}
+            <span>${escapeHtml(l.title)}</span>
+          </p>
+          <p class="text-[10px] mt-0.5" style="color:var(--text-3)">
+            <i class="fa-regular fa-clock mr-1"></i>${l.dateStr || ''} · ${l.timeStr || ''}
+          </p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <a href="${l.url}" target="_blank" class="press px-2.5 py-1 rounded-lg bg-mint-500/20 text-mint-400 text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open
+          </a>
+          <button onclick="togglePinLink('${l.id}', ${!!l.pinned})" class="press ${l.pinned?'text-mint-400':'text-gray-500'} p-1.5"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+          <button onclick="editLink('${l.id}')" class="press text-blue-400 p-1.5"><i class="fa-solid fa-pen text-xs"></i></button>
+          <button onclick="moveToTrash('links','${l.id}')" class="press text-red-400 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderLinks(){
   const q = (document.getElementById('search-links')?.value || '').toLowerCase();
-  const filtered = links.filter(l => l.title.toLowerCase().includes(q) || l.url.toLowerCase().includes(q));
-  document.getElementById('links-list').innerHTML = filtered.map(l=>`
-    <div class="flex items-center gap-3 field rounded-xl px-3.5 py-3">
-      <a href="${l.url}" target="_blank" class="min-w-0 flex-1">
-        <p class="text-sm font-semibold truncate flex items-center gap-1.5">
-          ${l.pinned ? '<span class="text-mint-400 text-xs">📌</span>' : ''}
-          <span>${escapeHtml(l.title)}</span>
-        </p>
-        <p class="text-[11px] truncate mt-0.5" style="color:var(--text-3)">${escapeHtml(l.url)}</p>
-      </a>
-      <button onclick="togglePinLink('${l.id}', ${!!l.pinned})" class="press ${l.pinned?'text-mint-400':'text-gray-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
-      <button onclick="moveToTrash('links','${l.id}')" style="color:var(--text-3)"><i class="fa-solid fa-trash text-xs"></i></button>
-    </div>
-  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No bookmarks found.</p>`;
+  const listContainer = document.getElementById('links-list');
+
+  // Prepare links with auto detected category/sub if missing
+  let preparedLinks = links.map(l => {
+    let d = detectCategoryAndSubcategory(l.url);
+    return {
+      ...l,
+      category: l.category || d.cat,
+      subCategory: l.subCategory || d.sub
+    };
+  }).sort((a,b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  let searchFiltered = preparedLinks.filter(l => l.title.toLowerCase().includes(q) || l.url.toLowerCase().includes(q));
+
+  // CASE 1: ALL LINKS VIEW
+  if (activeCategory === 'all') {
+    if(searchFiltered.length === 0){
+      listContainer.innerHTML = `<p class="text-xs text-center py-6" style="color:var(--text-3)">No bookmarks found.</p>`;
+      return;
+    }
+    listContainer.innerHTML = `<div class="space-y-2">` + searchFiltered.map(l => renderSingleLinkCard(l)).join('') + `</div>`;
+    return;
+  }
+
+  // CATEGORY SELECTED
+  const subDefs = SUB_CATEGORIES[activeCategory] || [];
+  let categoryLinks = searchFiltered.filter(l => l.category === activeCategory);
+
+  // CASE 2: INSIDE A SPECIFIC FOLDER
+  if (activeFolder !== null) {
+    let currentFolderDef = subDefs.find(s => s.id === activeFolder) || { name: 'Folder', icon: 'fa-solid fa-folder' };
+    let folderItems = categoryLinks.filter(l => l.subCategory === activeFolder);
+
+    let html = `
+      <div class="glass-strong rounded-2xl p-3.5 border border-mint-500/20 mb-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <button onclick="closeFolder()" class="press px-3 py-1.5 rounded-xl bg-white/10 text-xs font-bold flex items-center gap-1.5 text-mint-400">
+            <i class="fa-solid fa-arrow-left"></i> Back to Folders
+          </button>
+          <span class="text-xs font-extrabold flex items-center gap-1.5">
+            <i class="${currentFolderDef.icon}"></i> ${currentFolderDef.name} Folder
+          </span>
+        </div>
+      </div>
+    `;
+
+    if (folderItems.length === 0) {
+      html += `<p class="text-xs text-center py-8" style="color:var(--text-3)">This folder is empty.</p>`;
+    } else {
+      html += `<div class="space-y-2">` + folderItems.map(l => renderSingleLinkCard(l)).join('') + `</div>`;
+    }
+
+    listContainer.innerHTML = html;
+    return;
+  }
+
+  // CASE 3: FOLDERS LIST VIEW (DISPLAY ONLY FOLDER CARDS)
+  let folderCardsHtml = `<div class="grid grid-cols-2 gap-3">`;
+
+  subDefs.forEach(sub => {
+    let count = categoryLinks.filter(l => l.subCategory === sub.id).length;
+
+    folderCardsHtml += `
+      <div onclick="openFolder('${sub.id}')" class="glass p-4 rounded-2xl flex flex-col justify-between border border-white/5 hover:border-mint-500/30 transition-all cursor-pointer press h-28 relative overflow-hidden">
+        <div class="flex items-center justify-between">
+          <i class="fa-solid fa-folder text-amber-400 text-2xl"></i>
+          <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${count > 0 ? 'bg-mint-500/20 text-mint-400' : 'bg-white/10 text-gray-400'}">${count} items</span>
+        </div>
+        <div>
+          <p class="text-xs font-extrabold truncate flex items-center gap-1.5 mt-2">
+            <i class="${sub.icon} text-xs"></i>
+            <span>${sub.name}</span>
+          </p>
+          <p class="text-[9px]" style="color:var(--text-3)">Tap to view links</p>
+        </div>
+      </div>
+    `;
+  });
+
+  folderCardsHtml += `</div>`;
+  listContainer.innerHTML = folderCardsHtml;
 }
 window.renderLinks = renderLinks;
 
@@ -818,33 +1186,6 @@ function renderVaultNotes(){
   `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No secret notes found.</p>`;
 }
 window.renderVaultNotes = renderVaultNotes;
-
-// DOC & DRIVE HUB
-window.addDocHub = async function(){
-  const title = document.getElementById('doc-title').value.trim();
-  let url = document.getElementById('doc-url').value.trim();
-  const tag = document.getElementById('doc-tag').value.trim() || '#Document';
-  if(!title || !url) return;
-  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  const { dStr, tStr, isoDate } = generateDateStrings();
-  await window._fb.addDoc(userCol('dochub'), { title, url, tag, dateStr: dStr, timeStr: tStr, isoDate, createdAt: window._fb.serverTimestamp() });
-  document.getElementById('doc-title').value=''; document.getElementById('doc-url').value=''; document.getElementById('doc-tag').value=''; closeAllModals(); toast('Doc Link Saved');
-};
-function renderDocHub(){
-  document.getElementById('dochub-list').innerHTML = docHub.map(d=>`
-    <div class="glass rounded-xl p-3.5 flex items-center justify-between">
-      <div class="min-w-0 flex-1 pr-2">
-        <span class="text-[10px] font-bold text-blue-400 uppercase">${escapeHtml(d.tag)}</span>
-        <p class="text-sm font-bold truncate">${escapeHtml(d.title)}</p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="${d.url}" target="_blank" class="press px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>
-        <button onclick="moveToTrash('dochub','${d.id}')" class="text-xs text-gray-500 p-1"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </div>
-  `).join('') || `<p class="text-xs text-center py-4" style="color:var(--text-3)">No drive links saved yet.</p>`;
-}
-window.renderDocHub = renderDocHub;
 
 // CODE & PROMPT VAULT
 window.addSnippet = async function(){
@@ -965,7 +1306,7 @@ window.filterByDate = function(){
   const resDiv = document.getElementById('filter-results');
   if(!dateVal){ resDiv.classList.add('hidden'); return; }
   const matches = [];
-  [...links, ...ideas, ...journalEntries, ...watchlist, ...docHub, ...snippets].forEach(i=>{
+  [...links, ...ideas, ...journalEntries, ...watchlist, ...snippets].forEach(i=>{
     if(i.isoDate === dateVal) matches.push(i);
   });
   resDiv.classList.remove('hidden');
@@ -988,7 +1329,7 @@ window.exportBackup = async function(){
   toast('Preparing Backup...');
   try{
     const bk = { user: currentUser.email, data: {} };
-    for(const c of ['links','watchlist','ideas','journal','dochub','snippets','vault_notes','trash']){
+    for(const c of ['links','watchlist','ideas','journal','snippets','vault_notes','trash']){
       const s = await window._fb.getDocs(userCol(c));
       bk.data[c] = s.docs.map(d=>({ id: d.id, ...d.data() }));
     }
