@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Nexus — Personal Knowledge Command Center</title>
 
+<!-- PWA & Mobile Meta Tags -->
+<meta name="theme-color" content="#05070a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nexus">
+
+<!-- Theme Initializer (Prevents Screen Flash) -->
+<script>
+  (function() {
+    const saved = localStorage.getItem('nexus_theme');
+    if (saved === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+  })();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -215,6 +236,36 @@
       </div>
       <div id="home-pinned-links" class="flex flex-wrap gap-2 mb-6"></div>
 
+      <!-- FEATURE 2: DAILY QUICK TO-DO / TASK CHECKLIST -->
+      <div class="glass-strong rounded-3xl p-4 mb-5 border border-mint-500/20">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-mint-400 text-sm"></i>
+            <h3 class="font-bold text-sm">Daily Focus Tasks</h3>
+          </div>
+          <span id="todo-progress" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-mint-500/20 text-mint-400">0 done</span>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input id="todo-input" type="text" placeholder="Add a daily priority..." class="field flex-1 rounded-xl px-3.5 py-2 text-xs" onkeydown="if(event.key==='Enter')addTodo()" />
+          <button onclick="addTodo()" class="press px-3 py-2 rounded-xl bg-mint-500 text-gray-950 font-bold text-xs"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div id="todo-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- FEATURE 3: INSTANT SCRATCHPAD / QUICK DRAFT (OFFLINE AUTO-SAVE) -->
+      <div class="glass rounded-3xl p-4 mb-5 border border-white/5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold flex items-center gap-1.5 text-amber-400">
+            <i class="fa-solid fa-pen-fancy"></i> Instant Scratchpad <span class="text-[9px] font-normal text-gray-500">(Auto-saved)</span>
+          </span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="copyScratchpad()" class="press px-2 py-0.5 rounded-md bg-white/10 text-[10px] font-semibold text-gray-300"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
+            <button onclick="clearScratchpad()" class="press px-2 py-0.5 rounded-md bg-white/10 text-[10px] font-semibold text-red-400"><i class="fa-regular fa-trash-can mr-1"></i>Clear</button>
+          </div>
+        </div>
+        <textarea id="scratchpad-text" rows="3" placeholder="Jot down quick temp ideas, OTPs, or text drafts here... auto-saves on this device." class="field w-full rounded-xl p-3 text-xs resize-none"></textarea>
+      </div>
+
       <!-- Overview Stats -->
       <h3 class="font-bold text-sm mb-3">Overview Knowledge Base</h3>
       <div class="grid grid-cols-3 gap-2 mb-6">
@@ -341,6 +392,7 @@
         </div>
       </div>
 
+      <!-- FEATURE 7: THEME TOGGLE WITH LOCALSTORAGE PERSISTENCE -->
       <div class="glass rounded-2xl px-4 py-3.5 mb-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <i class="fa-solid fa-circle-half-stroke text-sm" style="color:var(--text-2)"></i>
@@ -350,6 +402,15 @@
           <span id="theme-thumb" class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all"></span>
         </button>
       </div>
+
+      <!-- FEATURE 4: CHANGE VAULT PIN OPTION -->
+      <button onclick="openChangePinModal()" class="w-full glass rounded-2xl px-4 py-3.5 mb-3 flex items-center justify-between press">
+        <div class="flex items-center gap-3 text-mint-400">
+          <i class="fa-solid fa-key text-sm"></i>
+          <span class="text-sm font-bold">Change Vault PIN</span>
+        </div>
+        <i class="fa-solid fa-chevron-right text-xs" style="color:var(--text-3)"></i>
+      </button>
 
       <button onclick="openSubView('view-trash', 'settings')" class="w-full glass rounded-2xl px-4 py-3.5 mb-4 flex items-center justify-between press">
         <div class="flex items-center gap-3 text-red-400">
@@ -452,6 +513,23 @@
 
 <!-- MODALS -->
 
+<!-- Modal: Change Vault PIN -->
+<div id="change-pin-modal" class="sheet glass-strong rounded-t-[28px] p-5">
+  <h3 class="font-bold text-lg mb-4 text-mint-400">Change Vault Security PIN</h3>
+  <div class="space-y-3 mb-4">
+    <div id="wrap-old-pin">
+      <label class="text-[11px] font-semibold uppercase tracking-wide" style="color:var(--text-3)">Current 4-Digit PIN</label>
+      <input id="old-pin-input" type="password" maxlength="4" placeholder="••••" class="field w-full rounded-xl px-4 py-3 text-center tracking-widest text-lg font-bold mt-1" />
+    </div>
+    <div>
+      <label class="text-[11px] font-semibold uppercase tracking-wide" style="color:var(--text-3)">New 4-Digit PIN</label>
+      <input id="new-pin-input" type="password" maxlength="4" placeholder="••••" class="field w-full rounded-xl px-4 py-3 text-center tracking-widest text-lg font-bold mt-1" />
+    </div>
+  </div>
+  <button onclick="saveNewVaultPin()" class="press w-full rounded-2xl py-3.5 font-bold text-sm bg-mint-500 text-gray-950 mb-2">Update Security PIN</button>
+  <button onclick="closeAllModals()" class="w-full py-2.5 font-semibold text-sm" style="color:var(--text-3)">Cancel</button>
+</div>
+
 <!-- Modal: Add / Edit Link -->
 <div id="link-modal" class="sheet glass-strong rounded-t-[28px] p-5">
   <h3 class="font-bold text-lg mb-4" id="link-modal-title">Add Bookmark</h3>
@@ -550,13 +628,13 @@ window._fb = { auth, db, collection, addDoc, doc, setDoc, getDoc, getDocs, delet
 let currentUser = null;
 let unsubscribers = [];
 
-let links = [], watchlist = [], ideas = [], journalEntries = [], snippets = [], vaultNotes = [], trashItems = [];
+let links = [], watchlist = [], ideas = [], journalEntries = [], snippets = [], vaultNotes = [], trashItems = [], todos = [];
 let vaultUnlocked = false, vaultPin = null;
 
 let activeCategory = 'all';
-let activeFolder = null; // null = viewing folders, 'facebook' = inside facebook folder
+let activeFolder = null;
 
-// SUB-SERVICES & FOLDER DEFINITIONS
+// SUB-CATEGORIES DEFINITION
 const SUB_CATEGORIES = {
   social: [
     { id: 'facebook', name: 'Facebook', icon: 'fa-brands fa-facebook text-blue-500' },
@@ -614,8 +692,27 @@ function toast(msg){
   wrap.appendChild(el);
   setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2200);
 }
+window.toast = toast;
+
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
 window.escapeHtml = escapeHtml;
+
+window.copyToClipboard = function(text, msg = 'Copied to clipboard!'){
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => toast(msg)).catch(() => fallbackCopy(text, msg));
+  } else {
+    fallbackCopy(text, msg);
+  }
+};
+function fallbackCopy(text, msg){
+  const t = document.createElement('textarea');
+  t.value = text;
+  document.body.appendChild(t);
+  t.select();
+  document.execCommand('copy');
+  document.body.removeChild(t);
+  toast(msg);
+}
 
 function generateDateStrings() {
   const d = new Date();
@@ -641,7 +738,7 @@ onAuthStateChanged(auth, async (user)=>{
   if(user && user.email === ALLOWED_EMAIL){
     currentUser = user; document.getElementById('settings-email').textContent = user.email;
     document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-root').classList.remove('hidden');
-    attachListeners(); updateAppCounters();
+    attachListeners(); updateAppCounters(); initScratchpad(); initPWA();
   } else {
     if(user) await window._fb.signOut(auth);
     document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-root').classList.add('hidden');
@@ -659,13 +756,16 @@ function attachListeners(){
   unsubscribers.push(window._fb.onSnapshot(qs('vault_notes'), s=>{ vaultNotes = s.docs.map(d=>({id:d.id,...d.data()})); renderVaultNotes(); updateStats(); }));
   unsubscribers.push(window._fb.onSnapshot(window._fb.query(userCol('trash'), window._fb.orderBy('deletedAt','desc')), s=>{ trashItems = s.docs.map(d=>({id:d.id,...d.data()})); renderTrash(); }));
   
+  // Daily To-Do listener
+  unsubscribers.push(window._fb.onSnapshot(qs('todos'), s=>{ todos = s.docs.map(d=>({id:d.id,...d.data()})); renderTodos(); }));
+
   unsubscribers.push(window._fb.onSnapshot(userDoc('meta','vault'), s=>{
     vaultPin = s.exists() ? s.data().pin : null;
     renderVaultUI();
   }));
 }
 
-// UNIVERSAL GLOBAL SEARCH (SECURITY GUARANTEE: EXCLUDES SECURE VAULT NOTES)
+// UNIVERSAL GLOBAL SEARCH
 window.performGlobalSearch = function(){
   const q = (document.getElementById('global-search-input')?.value || '').trim().toLowerCase();
   const resContainer = document.getElementById('global-search-results');
@@ -679,7 +779,6 @@ window.performGlobalSearch = function(){
   resContainer.classList.remove('hidden');
   let results = [];
 
-  // 1. Bookmarks (links)
   links.forEach(l => {
     if ((l.title || '').toLowerCase().includes(q) || (l.url || '').toLowerCase().includes(q)) {
       results.push({
@@ -687,12 +786,16 @@ window.performGlobalSearch = function(){
         icon: 'fa-solid fa-bookmark text-mint-400',
         title: l.title,
         sub: l.dateStr + ' · ' + l.timeStr,
-        actionHtml: `<a href="${l.url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-mint-500/20 text-mint-400 text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open</a>`
+        actionHtml: `
+          <div class="flex items-center gap-1">
+            <button onclick="copyToClipboard('${escapeHtml(l.url)}', 'Link copied!')" class="px-2 py-1 rounded bg-white/10 text-[10px] font-bold text-gray-300">Copy</button>
+            <a href="${l.url}" target="_blank" class="px-2 py-1 rounded bg-mint-500/20 text-mint-400 text-[10px] font-bold">Open</a>
+          </div>
+        `
       });
     }
   });
 
-  // 2. Code Snippets
   snippets.forEach(s => {
     if ((s.title || '').toLowerCase().includes(q) || (s.code || '').toLowerCase().includes(q)) {
       results.push({
@@ -705,7 +808,6 @@ window.performGlobalSearch = function(){
     }
   });
 
-  // 3. Watchlist
   watchlist.forEach(w => {
     if ((w.title || '').toLowerCase().includes(q)) {
       results.push({
@@ -718,7 +820,6 @@ window.performGlobalSearch = function(){
     }
   });
 
-  // 4. Ideas
   ideas.forEach(i => {
     if ((i.text || '').toLowerCase().includes(q)) {
       results.push({
@@ -731,7 +832,6 @@ window.performGlobalSearch = function(){
     }
   });
 
-  // 5. Journal
   journalEntries.forEach(j => {
     if ((j.text || '').toLowerCase().includes(q)) {
       results.push({
@@ -743,8 +843,6 @@ window.performGlobalSearch = function(){
       });
     }
   });
-
-  // NOTE: Locked Vault Notes (vaultNotes) are EXCLUDED for 100% Privacy & PIN Protection!
 
   if (results.length === 0) {
     resContainer.innerHTML = `<p class="text-xs text-center py-3" style="color:var(--text-3)">No matching items found.</p>`;
@@ -763,16 +861,14 @@ window.performGlobalSearch = function(){
               <p class="text-[9px] mt-0.5" style="color:var(--text-3)">${escapeHtml(r.type)} · ${escapeHtml(r.sub)}</p>
             </div>
           </div>
-          <div class="shrink-0">
-            ${r.actionHtml}
-          </div>
+          <div class="shrink-0">${r.actionHtml}</div>
         </div>
       `).join('')}
     </div>
   `;
 };
 
-// COUNTERS SYSTEM
+// COUNTERS SYSTEM (PRESERVES EXACT APP AGE & ACTIVE DAYS VISITS)
 async function updateAppCounters(){
   const start = new Date(APP_CREATION_DATE);
   const now = new Date();
@@ -838,12 +934,17 @@ window.moveToTrash = moveToTrash;
 // HOME PINNED LINKS & STATS
 function renderHomePinned(){
   const pinned = links.filter(l=>l.pinned);
-  document.getElementById('home-pinned-links').innerHTML = pinned.map(l=>`
-    <a href="${l.url}" target="_blank" class="press glass px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-mint-500/20">
-      <i class="fa-solid fa-link text-mint-400 text-[10px]"></i>
-      <span>${escapeHtml(l.title)}</span>
-    </a>
-  `).join('') || `<p class="text-xs text-gray-500">No pinned links yet. Pin shortcuts from Bookmarks tab.</p>`;
+  document.getElementById('home-pinned-links').innerHTML = pinned.map(l=>{
+    let fUrl = '';
+    try { fUrl = `https://www.google.com/s2/favicons?domain=${new URL(l.url).hostname}&sz=32`; } catch(e){}
+    return `
+      <div class="glass px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border border-mint-500/20">
+        ${fUrl ? `<img src="${fUrl}" class="w-3.5 h-3.5 rounded-full object-contain shrink-0" onerror="this.remove()"/>` : `<i class="fa-solid fa-link text-mint-400 text-[10px]"></i>`}
+        <a href="${l.url}" target="_blank" class="truncate max-w-[120px]">${escapeHtml(l.title)}</a>
+        <button onclick="copyToClipboard('${escapeHtml(l.url)}', 'Link copied!')" class="text-gray-400 hover:text-white ml-1 text-[11px]"><i class="fa-regular fa-copy"></i></button>
+      </div>
+    `;
+  }).join('') || `<p class="text-xs text-gray-500">No pinned links yet. Pin shortcuts from Bookmarks tab.</p>`;
 }
 
 function updateStats(){
@@ -877,6 +978,77 @@ function renderFlashback(){
     box.innerHTML = `<p class="text-gray-400">No memories recorded on this exact calendar day in past years.</p>`;
   }
 }
+
+// FEATURE 2: DAILY TO-DOS LOGIC
+window.addTodo = async function(){
+  const input = document.getElementById('todo-input');
+  const val = input.value.trim();
+  if(!val) return;
+  const { dStr, tStr, isoDate } = generateDateStrings();
+  await window._fb.addDoc(userCol('todos'), {
+    text: val,
+    completed: false,
+    dateStr: dStr,
+    timeStr: tStr,
+    isoDate: isoDate,
+    createdAt: window._fb.serverTimestamp()
+  });
+  input.value = '';
+  toast('Task added');
+};
+
+window.toggleTodo = async function(id, curState){
+  await window._fb.updateDoc(userDoc('todos', id), { completed: !curState });
+};
+
+window.deleteTodo = async function(id){
+  await window._fb.deleteDoc(userDoc('todos', id));
+  toast('Task deleted');
+};
+
+function renderTodos(){
+  const container = document.getElementById('todo-list');
+  const progressEl = document.getElementById('todo-progress');
+  
+  const doneCount = todos.filter(t => t.completed).length;
+  progressEl.textContent = `${doneCount}/${todos.length} done`;
+
+  if(todos.length === 0){
+    container.innerHTML = `<p class="text-xs text-center py-2" style="color:var(--text-3)">No daily tasks right now.</p>`;
+    return;
+  }
+
+  container.innerHTML = todos.map(t => `
+    <div class="glass p-2.5 rounded-xl flex items-center justify-between gap-2 border border-white/5">
+      <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleTodo('${t.id}', ${!!t.completed})">
+        <i class="fa-${t.completed ? 'solid fa-circle-check text-mint-400' : 'regular fa-circle text-gray-500'} text-sm"></i>
+        <span class="text-xs font-medium truncate ${t.completed ? 'line-through text-gray-500' : ''}">${escapeHtml(t.text)}</span>
+      </div>
+      <button onclick="deleteTodo('${t.id}')" class="text-gray-500 hover:text-red-400 text-xs px-1"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  `).join('');
+}
+
+// FEATURE 3: SCRATCHPAD (OFFLINE LOCALSTORAGE)
+function initScratchpad(){
+  const pad = document.getElementById('scratchpad-text');
+  pad.value = localStorage.getItem('nexus_scratchpad') || '';
+  pad.addEventListener('input', (e)=>{
+    localStorage.setItem('nexus_scratchpad', e.target.value);
+  });
+}
+window.copyScratchpad = function(){
+  const val = document.getElementById('scratchpad-text').value;
+  if(!val) return;
+  copyToClipboard(val, 'Scratchpad copied!');
+};
+window.clearScratchpad = function(){
+  if(confirm('Clear scratchpad draft?')){
+    document.getElementById('scratchpad-text').value = '';
+    localStorage.removeItem('nexus_scratchpad');
+    toast('Scratchpad cleared');
+  }
+};
 
 // DETECT CATEGORY & SUB-CATEGORY FROM DOMAIN
 function detectCategoryAndSubcategory(url){
@@ -919,7 +1091,6 @@ function detectCategoryAndSubcategory(url){
   if (u.includes('mega.nz') || u.includes('mega.co.nz')) return { cat: 'drive', sub: 'mega' };
   if (u.includes('dropbox.com')) return { cat: 'drive', sub: 'dropbox' };
 
-  // DEFAULT
   return { cat: 'other', sub: 'other' };
 }
 
@@ -988,7 +1159,7 @@ window.togglePinLink = async function(id, cur){
 
 window.filterBookmarkCategory = function(cat){
   activeCategory = cat;
-  activeFolder = null; // Reset folder selection when category changes
+  activeFolder = null;
   document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
   const chip = document.getElementById('cat-chip-' + cat);
   if(chip) chip.classList.add('active');
@@ -1006,21 +1177,32 @@ window.closeFolder = function(){
   renderLinks();
 };
 
-// RENDER SINGLE LINK CARD (NO RAW URL SHOWN, OPEN BUTTON ONLY)
+// FEATURE 1 & 6: RENDER SINGLE LINK WITH FAVICON + COPY BUTTON
 function renderSingleLinkCard(l){
+  let fUrl = '';
+  try {
+    fUrl = `https://www.google.com/s2/favicons?domain=${new URL(l.url).hostname}&sz=32`;
+  } catch(e){}
+
   return `
     <div class="glass rounded-xl p-3 border ${l.pinned ? 'border-mint-500/40 bg-mint-500/5' : 'border-white/5'} space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <div class="min-w-0 flex-1">
-          <p class="text-xs font-bold truncate flex items-center gap-1.5">
-            ${l.pinned ? '<span class="text-mint-400 text-xs">📌</span>' : ''}
-            <span>${escapeHtml(l.title)}</span>
-          </p>
-          <p class="text-[10px] mt-0.5" style="color:var(--text-3)">
-            <i class="fa-regular fa-clock mr-1"></i>${l.dateStr || ''} · ${l.timeStr || ''}
-          </p>
+        <div class="min-w-0 flex-1 flex items-center gap-2.5">
+          ${fUrl ? `<img src="${fUrl}" class="w-4 h-4 rounded-full object-contain shrink-0 bg-white/10" onerror="this.remove()"/>` : `<i class="fa-solid fa-globe text-xs text-mint-400 shrink-0"></i>`}
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold truncate flex items-center gap-1.5">
+              ${l.pinned ? '<span class="text-mint-400 text-xs">📌</span>' : ''}
+              <span>${escapeHtml(l.title)}</span>
+            </p>
+            <p class="text-[10px] mt-0.5" style="color:var(--text-3)">
+              <i class="fa-regular fa-clock mr-1"></i>${l.dateStr || ''} · ${l.timeStr || ''}
+            </p>
+          </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="copyToClipboard('${escapeHtml(l.url)}', 'Link copied!')" class="press px-2 py-1 rounded-lg bg-white/10 text-gray-300 text-xs font-semibold flex items-center gap-1">
+            <i class="fa-regular fa-copy text-[10px]"></i> Copy
+          </button>
           <a href="${l.url}" target="_blank" class="press px-2.5 py-1 rounded-lg bg-mint-500/20 text-mint-400 text-xs font-bold flex items-center gap-1">
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open
           </a>
@@ -1037,7 +1219,6 @@ function renderLinks(){
   const q = (document.getElementById('search-links')?.value || '').toLowerCase();
   const listContainer = document.getElementById('links-list');
 
-  // Prepare links with auto detected category/sub if missing
   let preparedLinks = links.map(l => {
     let d = detectCategoryAndSubcategory(l.url);
     return {
@@ -1049,7 +1230,6 @@ function renderLinks(){
 
   let searchFiltered = preparedLinks.filter(l => l.title.toLowerCase().includes(q) || l.url.toLowerCase().includes(q));
 
-  // CASE 1: ALL LINKS VIEW
   if (activeCategory === 'all') {
     if(searchFiltered.length === 0){
       listContainer.innerHTML = `<p class="text-xs text-center py-6" style="color:var(--text-3)">No bookmarks found.</p>`;
@@ -1059,11 +1239,9 @@ function renderLinks(){
     return;
   }
 
-  // CATEGORY SELECTED
   const subDefs = SUB_CATEGORIES[activeCategory] || [];
   let categoryLinks = searchFiltered.filter(l => l.category === activeCategory);
 
-  // CASE 2: INSIDE A SPECIFIC FOLDER
   if (activeFolder !== null) {
     let currentFolderDef = subDefs.find(s => s.id === activeFolder) || { name: 'Folder', icon: 'fa-solid fa-folder' };
     let folderItems = categoryLinks.filter(l => l.subCategory === activeFolder);
@@ -1091,7 +1269,6 @@ function renderLinks(){
     return;
   }
 
-  // CASE 3: FOLDERS LIST VIEW (DISPLAY ONLY FOLDER CARDS)
   let folderCardsHtml = `<div class="grid grid-cols-2 gap-3">`;
 
   subDefs.forEach(sub => {
@@ -1147,6 +1324,37 @@ function renderVaultUI(){
     document.getElementById('vault-add-btn').classList.add('hidden');
   }
 }
+
+// FEATURE 4: CHANGE PIN MODAL LOGIC
+window.openChangePinModal = function(){
+  const wrap = document.getElementById('wrap-old-pin');
+  document.getElementById('old-pin-input').value = '';
+  document.getElementById('new-pin-input').value = '';
+  if(!vaultPin){
+    wrap.classList.add('hidden');
+  } else {
+    wrap.classList.remove('hidden');
+  }
+  openModal('change-pin-modal');
+};
+
+window.saveNewVaultPin = async function(){
+  const oldPin = document.getElementById('old-pin-input').value.trim();
+  const newPin = document.getElementById('new-pin-input').value.trim();
+
+  if(vaultPin && oldPin !== vaultPin){
+    return alert('Current PIN is incorrect!');
+  }
+  if(!newPin || newPin.length !== 4 || isNaN(newPin)){
+    return alert('New PIN must be exactly 4 digits!');
+  }
+
+  await window._fb.setDoc(userDoc('meta','vault'), { pin: newPin }, { merge:true });
+  vaultPin = newPin;
+  closeAllModals();
+  toast('Vault PIN updated successfully!');
+};
+
 window.saveVaultNote = async function(){
   const editId = document.getElementById('vault-edit-id').value;
   const title = document.getElementById('vault-note-title').value.trim();
@@ -1197,7 +1405,7 @@ window.addSnippet = async function(){
   document.getElementById('snippet-title').value=''; document.getElementById('snippet-code').value=''; closeAllModals(); toast('Snippet Saved');
 };
 window.copySnippet = function(text){
-  navigator.clipboard.writeText(text); toast('Copied to clipboard!');
+  copyToClipboard(text, 'Snippet copied to clipboard!');
 };
 function renderSnippets(){
   document.getElementById('snippets-list').innerHTML = snippets.map(s=>`
@@ -1306,7 +1514,7 @@ window.filterByDate = function(){
   const resDiv = document.getElementById('filter-results');
   if(!dateVal){ resDiv.classList.add('hidden'); return; }
   const matches = [];
-  [...links, ...ideas, ...journalEntries, ...watchlist, ...snippets].forEach(i=>{
+  [...links, ...ideas, ...journalEntries, ...watchlist, ...snippets, ...todos].forEach(i=>{
     if(i.isoDate === dateVal) matches.push(i);
   });
   resDiv.classList.remove('hidden');
@@ -1318,24 +1526,37 @@ window.filterByDate = function(){
   `).join('') || `<p class="text-xs text-center text-gray-500 py-2">No activity on this date.</p>`;
 };
 
-// THEME & BACKUP
-window.toggleTheme = function(){ const n=!document.documentElement.classList.contains('light'); applyTheme(n); };
+// FEATURE 7: THEME TOGGLE & PERSISTENCE
+window.toggleTheme = function(){ 
+  const isLight = !document.documentElement.classList.contains('light'); 
+  applyTheme(isLight); 
+};
 function applyTheme(light){
-  document.documentElement.classList.toggle('dark',!light); document.documentElement.classList.toggle('light',light);
-  document.getElementById('theme-thumb').style.transform = light?'translateX(20px)':'translateX(0)';
+  document.documentElement.classList.toggle('dark', !light);
+  document.documentElement.classList.toggle('light', light);
+  localStorage.setItem('nexus_theme', light ? 'light' : 'dark');
+  const thumb = document.getElementById('theme-thumb');
+  if(thumb) thumb.style.transform = light ? 'translateX(20px)' : 'translateX(0)';
 }
+// Sync thumb toggle UI with current theme
+setTimeout(() => {
+  const isLight = document.documentElement.classList.contains('light');
+  const thumb = document.getElementById('theme-thumb');
+  if(thumb) thumb.style.transform = isLight ? 'translateX(20px)' : 'translateX(0)';
+}, 100);
 
+// BACKUP & RESTORE (INCLUDES NEW TODOS)
 window.exportBackup = async function(){
   toast('Preparing Backup...');
   try{
     const bk = { user: currentUser.email, data: {} };
-    for(const c of ['links','watchlist','ideas','journal','snippets','vault_notes','trash']){
+    for(const c of ['links','watchlist','ideas','journal','snippets','vault_notes','trash','todos']){
       const s = await window._fb.getDocs(userCol(c));
       bk.data[c] = s.docs.map(d=>({ id: d.id, ...d.data() }));
     }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(bk)],{type:'application/json'}));
-    a.download = `nexus-backup-${APP_CREATION_DATE}.json`;
+    a.download = `nexus-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click(); toast('Backup Downloaded!');
   }catch(e){}
 };
@@ -1351,6 +1572,31 @@ window.importBackup = async function(e){
     await batch.commit(); toast('Backup Imported Successfully!');
   }catch(er){}
 };
+
+// FEATURE 5: PWA MANIFEST CREATION
+function initPWA(){
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifest = {
+      name: "Nexus Command Center",
+      short_name: "Nexus",
+      start_url: window.location.href,
+      display: "standalone",
+      background_color: "#05070a",
+      theme_color: "#05070a",
+      icons: [{
+        src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/svgs/solid/bolt.svg",
+        sizes: "192x192 512x512",
+        type: "image/svg+xml",
+        purpose: "any maskable"
+      }]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = URL.createObjectURL(blob);
+    document.head.appendChild(link);
+  }
+}
 
 // INIT
 switchTab('home');
